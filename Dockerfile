@@ -7,16 +7,17 @@ LABEL maintainer="Gluu Inc. <support@gluu.org>"
 # ===============
 
 RUN apk update && \
-    apk add --update nodejs \
+    apk add --no-cache --update nodejs \
     nodejs-npm \
     python \
+    py-pip \
     git && \
+    pip install --no-cache-dir pip "consulate==0.6.0" pyDes && \
     git clone https://github.com/GluuFederation/gluu-passport.git && \
     cd gluu-passport &&\ 
     npm install && \
     ln -s /usr/local/bin/node /usr/local/bin/nodejs && \
-    cd /usr/lib/jvm && ln -s java-1.8.0-openjdk-amd64 default-java && \
-    pip install -U pip "consulate==0.6.0" pyDes
+    cd /usr/lib/jvm && ln -s java-1.8.0-openjdk-amd64 default-java
 
 RUN mkdir -p /opt/scripts && \
     mkdir -p /etc/certs && \
@@ -33,7 +34,7 @@ VOLUME /etc/gluu/conf/
 
 COPY entrypoint.sh /opt/scripts/
 COPY entrypoint.py /opt/scripts/
-COPY examples/passport-config.json /etc/gluu/conf/
-COPY templates/passport-saml-config.json.tmpl /tmp/
+COPY templates/passport-config.json.tmpl /tmp/
+COPY examples/passport-saml-config.json /etc/gluu/conf/
 RUN chmod +x /opt/scripts/entrypoint.sh
 CMD [ "/opt/scripts/entrypoint.sh" ]
