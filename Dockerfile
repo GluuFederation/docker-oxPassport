@@ -1,4 +1,4 @@
-FROM openjdk:jre-alpine
+FROM node:alpine
 
 LABEL maintainer="Gluu Inc. <support@gluu.org>"
 
@@ -7,17 +7,15 @@ LABEL maintainer="Gluu Inc. <support@gluu.org>"
 # ===============
 
 RUN apk update && \
-    apk add --no-cache --update nodejs \
-    nodejs-npm \
+    apk add --no-cache --update \
     python \
-    py-pip \
-    git && \
+    wget \
+    py-pip && \
     pip install --no-cache-dir pip "consulate==0.6.0" pyDes && \
-    git clone https://github.com/GluuFederation/gluu-passport.git && \
-    cd gluu-passport &&\ 
-    npm install && \
-    ln -s /usr/local/bin/node /usr/local/bin/nodejs && \
-    cd /usr/lib/jvm && ln -s java-1.8.0-openjdk-amd64 default-java
+    ln -s /usr/local/bin/node /usr/local/bin/nodejs&& \
+    wget --no-check-certificate https://ox.gluu.org/npm/passport/passport-3.1.3.tgz && \
+    tar -xf passport-3.1.3.tgz && \
+    npm install --prefix /package/ /package/
 
 RUN mkdir -p /opt/scripts && \
     mkdir -p /etc/certs && \
@@ -29,12 +27,13 @@ ENV GLUU_KV_PORT 8500
 
 EXPOSE 8090
 
-VOLUME /gluu-passport/server/
 VOLUME /etc/gluu/conf/
 
 COPY entrypoint.sh /opt/scripts/
 COPY entrypoint.py /opt/scripts/
 COPY templates/passport-config.json.tmpl /tmp/
-COPY examples/passport-saml-config.json /etc/gluu/conf/
+COPY passport-saml-config.json /etc/gluu/conf/
+
 RUN chmod +x /opt/scripts/entrypoint.sh
+
 CMD [ "/opt/scripts/entrypoint.sh" ]
