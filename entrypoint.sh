@@ -2,5 +2,4 @@
 
 python /opt/scripts/entrypoint.py
 
-cd /gluu-passport/server/
-node app
+node /package/server/app.js
