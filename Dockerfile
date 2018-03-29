@@ -15,13 +15,13 @@ RUN apk update && \
     ln -s /usr/local/bin/node /usr/local/bin/nodejs&& \
     wget --no-check-certificate https://ox.gluu.org/npm/passport/passport-3.1.3.tgz && \
     tar -xf passport-3.1.3.tgz && \
-    npm install --prefix /package/ /package/
+    cd /package/ && \
+    npm install
 
 RUN mkdir -p /opt/scripts && \
     mkdir -p /etc/certs && \
     mkdir -p /etc/gluu/conf
 
-ENV GLUU_LDAP_URL localhost:1636
 ENV GLUU_KV_HOST localhost
 ENV GLUU_KV_PORT 8500
 
