@@ -56,7 +56,7 @@ def writeCerts(cert_fn, cert):
 
 # Automatically create passport-config.json from entries
 
-with open('tmp/passport-config.json.tmpl', 'r') as file:
+with open('/tmp/passport-config.json.tmpl', 'r') as file:
     data = file.read()
 for k,v in config.iteritems():
     data = data.replace(k,v)
