@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import os
-import sys
 import consulate
 import base64
 from pyDes import triple_des,ECB,PAD_PKCS5
@@ -18,8 +17,8 @@ def unobscure(s=""):
 hostname = consul.kv.get("gluu/config/hostname")
 
 passport_rp_client_id = consul.kv.get("gluu/config/passport_rp_client_id")
-passport_rp_client_base64_jwks = base64.b64decode(consul.kv.get("gluu/config/passport_rp_client_base64_jwks"))
 passport_rp_client_cert_fn = consul.kv.get("gluu/config/passport_rp_client_cert_fn")
+passport_rp_client_cert_base64 = consul.kv.get("gluu/config/passport_rp_client_cert_base64")
 passport_rp_client_cert_alias = consul.kv.get("gluu/config/passport_rp_client_cert_alias")
 passport_rp_client_cert_alg = consul.kv.get("gluu/config/passport_rp_client_cert_alg")
 
@@ -37,14 +36,14 @@ idpSigningCert = consul.kv.get("gluu/config/idp3SigningCertificateText")
 certs = {
         '{}'.format(passport_rs_client_jks_fn):'{}'.format(passport_rs_jks),
         '{}'.format(passport_rp_client_jks_fn):'{}'.format(passport_rp_jks),
-        #'{}'.format(passport_rp_client_cert_fn):'{}'.format(passport_rp_client_base64_jwks),
+        '{}'.format(passport_rp_client_cert_fn):'{}'.format(passport_rp_client_cert_base64),
         '/etc/certs/idp-signing.crt':'{}'.format(idpSigningCert)
         }
 
-config = { 
+config = {
         '%hostname': '{}'.format(hostname),
         '%passport_rp_client_id': '{}'.format(passport_rp_client_id),
-        '%passport_rp_client_cert_fn': '{}'.format(passport_rp_client_cert_fn), 
+        '%passport_rp_client_cert_fn': '{}'.format(passport_rp_client_cert_fn),
         '%passport_rp_client_cert_alias': '{}'.format(passport_rp_client_cert_alias),
         '%passport_rp_client_cert_alg': '{}'.format(passport_rp_client_cert_alg),
         '%idpSigningCert': '{}'.format(idpSigningCert),
