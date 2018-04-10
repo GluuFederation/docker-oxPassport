@@ -31,7 +31,7 @@ VOLUME /etc/gluu/conf/
 
 COPY entrypoint.sh /opt/scripts/
 COPY entrypoint.py /opt/scripts/
-COPY templates/passport-config.json.tmpl /tmp/
+COPY passport-config.json.tmpl /tmp/
 COPY passport-saml-config.json /etc/gluu/conf/
 
 RUN chmod +x /opt/scripts/entrypoint.sh
