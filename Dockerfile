@@ -6,17 +6,29 @@ LABEL maintainer="Gluu Inc. <support@gluu.org>"
 # Alpine packages
 # ===============
 
-RUN apk update && \
-    apk add --no-cache --update \
-    python \
+RUN apk update && apk add --no-cache --update \
     wget \
-    py-pip && \
-    pip install --no-cache-dir pip "consulate==0.6.0" pyDes && \
-    ln -s /usr/local/bin/node /usr/local/bin/nodejs&& \
-    wget --no-check-certificate https://ox.gluu.org/npm/passport/passport-3.1.3.tgz && \
-    tar -xf passport-3.1.3.tgz && \
-    cd /package/ && \
-    npm install
+    py-pip
+
+# ==========
+# oxPassport
+# ==========
+ENV OX_VERSION 3.1.2
+
+RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${OX_VERSION}.tgz -O /tmp/passport.tgz \
+    && mkdir -p /opt/gluu/node/passport \
+    && tar -xf /tmp/passport.tgz --strip-components=1 -C /opt/gluu/node/passport \
+    && rm /tmp/passport.tgz \
+    && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
+    && cd /opt/gluu/node/passport \
+    && npm install
+
+# ======
+# Python
+# ======
+
+RUN pip install --no-cache-dir -U pip \
+    && pip install "consulate==0.6.0" pyDes
 
 RUN mkdir -p /opt/scripts && \
     mkdir -p /etc/certs && \
@@ -24,6 +36,7 @@ RUN mkdir -p /opt/scripts && \
 
 ENV GLUU_KV_HOST localhost
 ENV GLUU_KV_PORT 8500
+ENV NODE_LOGGING_DIR /opt/gluu/node/passport/server/logs
 
 EXPOSE 8090
 
@@ -33,6 +46,7 @@ COPY entrypoint.sh /opt/scripts/
 COPY entrypoint.py /opt/scripts/
 COPY passport-config.json.tmpl /tmp/
 COPY passport-saml-config.json /etc/gluu/conf/
+COPY logger.js /opt/gluu/node/passport/server/utils/
 
 RUN chmod +x /opt/scripts/entrypoint.sh
 
