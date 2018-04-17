@@ -1,5 +1,8 @@
 #!/bin/sh
 
-python /opt/scripts/entrypoint.py
+if [ ! -f /touched ]; then
+    python /opt/scripts/entrypoint.py
+    touch /touched
+fi
 
-node /package/server/app.js
+exec node /opt/gluu/node/passport/server/app.js
