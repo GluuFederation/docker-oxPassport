@@ -32,8 +32,10 @@ Per the [Passport configuration](https://gluu.org/docs/ce/3.1.2/authn-guide/inbo
 docker run -d \
     --name oxpassport \
     -e GLUU_KV_HOST=$IPADDR \
-    -v $PWD/etc/gluu/conf:/etc/gluu/conf \
+    -v /host/path/to/conf:/etc/gluu/conf \
     --add-host=${hostname}:$IPADDR \
     -p 8090:8090 \
     gluufederation/oxpassport:3.1.2_dev
 ```
+
+Be aware that you should already have a `passport-saml-config.json` located where you point the `-v /host/path/to/conf/:/etc/gluu/conf \`, otherwise start-up will fail.
