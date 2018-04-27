@@ -47,6 +47,7 @@ COPY entrypoint.py /opt/scripts/
 COPY passport-config.json.tmpl /tmp/
 COPY passport-saml-config.json /etc/gluu/conf/
 COPY logger.js /opt/gluu/node/passport/server/utils/
+COPY wait-for-it /opt/scripts/
 
 RUN chmod +x /opt/scripts/entrypoint.sh
 
