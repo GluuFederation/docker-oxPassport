@@ -6,7 +6,6 @@ Docker image packaging for oxPassport.
 
 - `GLUU_KV_HOST`: host/IP address of Consul server
 - `GLUU_KV_PORT`: port where Consul server is listening to
-- `--add-host`: Hostname of Gluu Server
 
 ## Running Container
 
@@ -14,8 +13,7 @@ Here's an example on how to run the container:
 ```
 docker run -d \
     --name oxpassport \
-    -e GLUU_KV_HOST=$IPADDR \
-    --add-host=${hostname}:$IPADDR \
+    -e GLUU_KV_HOST=consul.example.com \
     -p 8090:8090 \
     gluufederation/oxpassport:3.1.2_dev
 ```
@@ -31,9 +29,8 @@ Per the [Passport configuration](https://gluu.org/docs/ce/3.1.2/authn-guide/inbo
 ```
 docker run -d \
     --name oxpassport \
-    -e GLUU_KV_HOST=$IPADDR \
+    -e GLUU_KV_HOST=consul.example.com \
     -v /host/path/to/conf:/etc/gluu/conf \
-    --add-host=${hostname}:$IPADDR \
     -p 8090:8090 \
     gluufederation/oxpassport:3.1.2_dev
 ```
