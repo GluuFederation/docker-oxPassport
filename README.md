@@ -4,7 +4,7 @@ Docker image packaging for oxPassport.
 
 ## Latest Stable Release
 
-The latest stable release is `gluufederation/oxpassport:3.1.2_01`. Click [here](./CHANGES.md) for archived versions.
+The latest stable release is `gluufederation/oxpassport:3.1.3_01`. Click [here](./CHANGES.md) for archived versions.
 
 ## Versioning/Tagging
 
@@ -12,17 +12,17 @@ This image uses its own versioning/tagging format.
 
     <IMAGE-NAME>:<GLUU-SERVER-VERSION>_<RELEASE_VERSION>
 
-For example, `gluufederation/oxpassport:3.1.2_01` consists of:
+For example, `gluufederation/oxpassport:3.1.3_01` consists of:
 
 - `gluufederation/oxpassport` as `<IMAGE_NAME>`: the actual image name
-- `3.1.2` as `GLUU-SERVER-VERSION`: the Gluu Server version as setup reference
+- `3.1.3` as `GLUU-SERVER-VERSION`: the Gluu Server version as setup reference
 - `01` as `<RELEASE_VERSION>`
 
 ## Installation
 
 Pull the image:
 
-    docker pull gluufederation/oxpassport:3.1.2_01
+    docker pull gluufederation/oxpassport:3.1.3_01
 
 ## Environment Variables
 
