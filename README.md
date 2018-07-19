@@ -4,7 +4,7 @@ Docker image packaging for oxPassport.
 
 ## Latest Stable Release
 
-The latest stable release is `gluufederation/oxpassport:3.1.3_01`. Click [here](./CHANGES.md) for archived versions.
+The latest stable release is `gluufederation/oxpassport:3.1.3_02`. Click [here](./CHANGES.md) for archived versions.
 
 ## Versioning/Tagging
 
@@ -12,22 +12,32 @@ This image uses its own versioning/tagging format.
 
     <IMAGE-NAME>:<GLUU-SERVER-VERSION>_<RELEASE_VERSION>
 
-For example, `gluufederation/oxpassport:3.1.3_01` consists of:
+For example, `gluufederation/oxpassport:3.1.3_02` consists of:
 
 - `gluufederation/oxpassport` as `<IMAGE_NAME>`: the actual image name
 - `3.1.3` as `GLUU-SERVER-VERSION`: the Gluu Server version as setup reference
-- `01` as `<RELEASE_VERSION>`
+- `02` as `<RELEASE_VERSION>`
 
 ## Installation
 
 Pull the image:
 
-    docker pull gluufederation/oxpassport:3.1.3_01
+    docker pull gluufederation/oxpassport:3.1.3_02
 
 ## Environment Variables
 
-- `GLUU_KV_HOST`: host/IP address of Consul server
-- `GLUU_KV_PORT`: port where Consul server is listening to
+- `GLUU_CONFIG_ADAPTER`: config backend (either `consul` for Consul KV or `kubernetes` for Kubernetes configmap)
+
+The following environment variables are activated only if `GLUU_CONFIG_ADAPTER` is set to `consul`:
+
+- `GLUU_CONSUL_HOST`: hostname or IP of Consul (default to `localhost`)
+- `GLUU_CONSUL_PORT`: port of Consul (default to `8500`)
+- `GLUU_CONSUL_CONSISTENCY`: Consul consistency mode (choose one of `default`, `consistent`, or `stale`). Default to `stale` mode.
+
+otherwise, if `GLUU_CONFIG_ADAPTER` is set to `kubernetes`:
+
+- `GLUU_KUBERNETES_NAMESPACE`: Kubernetes namespace (default to `default`)
+- `GLUU_KUBERNETES_CONFIGMAP`: Kubernetes configmap name (default to `gluu`)
 
 ## Running Container
 
@@ -35,9 +45,9 @@ Here's an example on how to run the container:
 ```
 docker run -d \
     --name oxpassport \
-    -e GLUU_KV_HOST=consul.example.com \
+    -e GLUU_CONSUL_HOST=consul.example.com \
     -p 8090:8090 \
-    gluufederation/oxpassport:3.1.3_dev
+    gluufederation/oxpassport:3.1.3_02
 ```
 
 ## Thing to Know
@@ -51,10 +61,10 @@ Per the [Passport configuration](https://gluu.org/docs/ce/3.1.3/authn-guide/inbo
 ```
 docker run -d \
     --name oxpassport \
-    -e GLUU_KV_HOST=consul.example.com \
+    -e GLUU_CONSUL_HOST=consul.example.com \
     -v /host/path/to/conf:/etc/gluu/conf \
     -p 8090:8090 \
-    gluufederation/oxpassport:3.1.3_dev
+    gluufederation/oxpassport:3.1.3_02
 ```
 
 Be aware that you should already have a `passport-saml-config.json` located where you point the `-v /host/path/to/conf/:/etc/gluu/conf \`, otherwise start-up will fail.
