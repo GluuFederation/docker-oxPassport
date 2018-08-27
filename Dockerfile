@@ -45,14 +45,10 @@ EXPOSE 8090
 
 VOLUME /etc/gluu/conf/
 
-COPY entrypoint.sh /opt/scripts/
-COPY entrypoint.py /opt/scripts/
-COPY passport-config.json.tmpl /tmp/
-COPY passport-saml-config.json /etc/gluu/conf/
-COPY logger.js /opt/gluu/node/passport/server/utils/
-COPY wait-for-it.sh /opt/scripts/
-COPY wait_for_it.py /opt/scripts/
-COPY gluu_config.py /opt/scripts
+COPY templates/passport-config.json.tmpl /tmp/
+COPY templates/passport-saml-config.json /etc/gluu/conf/
+COPY scripts /opt/scripts/
+COPY patches/logger.js /opt/gluu/node/passport/server/utils/
 
 RUN chmod +x /opt/scripts/entrypoint.sh
 RUN chmod +x /opt/scripts/wait-for-it.sh
