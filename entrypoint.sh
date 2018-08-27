@@ -9,4 +9,8 @@ if [ ! -f /touched ]; then
     touch /touched
 fi
 
-exec node /opt/gluu/node/passport/server/app.js
+if [ -f /etc/redhat-release ]; then
+    source scl_source enable rh-nodejs8 && node /opt/gluu/node/passport/server/app.js
+else
+    exec node /opt/gluu/node/passport/server/app.js
+fi
