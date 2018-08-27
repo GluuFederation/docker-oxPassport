@@ -1,7 +1,11 @@
 #!/bin/sh
 
 if [ ! -f /touched ]; then
-    python /opt/scripts/entrypoint.py
+    if [ -f /etc/redhat-release ]; then
+        source scl_source enable python27 && python /opt/scripts/entrypoint.py
+    else
+        python /opt/scripts/entrypoint.py
+    fi
     touch /touched
 fi
 
