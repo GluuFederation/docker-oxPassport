@@ -1,8 +1,11 @@
-var fs = require('fs'),
+var	util = require('util'),
+	fs = require('fs'),
     Stomp = require('stomp-client'),
     winston = require('winston'),
     dir = process.env.NODE_LOGGING_DIR || __dirname + '/logs';
+
 require('winston-daily-rotate-file');
+var dateFormat = require('dateformat');
 
 if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
@@ -11,20 +14,31 @@ if (!fs.existsSync(dir)){
 winston.emitErrs = true;
 
 var logOpts = {
-    level: 'info',
-    filename: dir + '/passport.log',
+    level: global.config.logLevel ? global.config.logLevel : 'info',
+    filename: dir + '/passport-%DATE%.log',
     handleExceptions: true,
-    json: true,
-    maxsize: 5242880, //5MB
+    json: false,
     colorize: false,
-    datePattern: '.yyyy-MM-dd'
+    tailable: true,
+    datePattern: 'YYYY-MM-DD',
+    zippedArchive: true,
+    maxSize: '20m',
+    maxFiles: '14d',
+    timestamp: function() {
+        return dateFormat(new Date(), 'isoDateTime');
+    },
+    formatter: function(options) {
+        return options.timestamp() + ' [' + options.level.toUpperCase() + '] ' +
+            (options.message ? options.message : '') +
+            (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
+    }
 };
 
-var transport = new winston.transports.DailyRotateFile(logOpts);
+// var transport = new winston.transports.DailyRotateFile(logOpts);
+var transport = new winston.transports.Console(logOpts)
 
 var logger = new (winston.Logger)({
     transports: [
-        new winston.transports.Console({level: 'info', handleExceptions: true}),
         transport
     ],
     exitOnError: false
@@ -47,14 +61,36 @@ var MQDetails = {
     }
 };
 
-var sendMQMessage = function sendMessage(messageToPublish) {
+var sendMQMessage = function () {
     if(mqSetUp){
-        var stompClient = new Stomp(MQDetails);
+        var stompClient = new Stomp(MQDetails)
         stompClient.connect(function (sessionId) {
-            this.publish('/' + MQDetails.CLIENT_QUEUE_NAME, messageToPublish);
-        });
+			messageToPublish = util.format.apply(util, Array.prototype.slice.apply(arguments))
+            this.publish('/' + MQDetails.CLIENT_QUEUE_NAME, messageToPublish)
+        })
     }
-};
+}
+
+var log2 = function (level, msg) {
+
+	level = level ? level.toLowerCase() : 'info'
+	level = (level == 'error' || level == 'warn' || level == 'info' || level == 'verbose' || level == 'debug' || level == 'silly') ? level : 'info'
+	msg = msg || ''
+
+	arguments['0'] = level
+	arguments['1'] = msg
+
+	//Log it to winston logger
+	args = Array.prototype.slice.apply(arguments)
+	logger.log.apply(logger, args)
+
+	//Log it to MQ
+	args[1] = level + ": " + args[1]
+	args.shift()
+	sendMQMessage.apply(this, args)
+
+}
+
 
 module.exports = logger;
 module.exports.stream = {
@@ -62,4 +98,5 @@ module.exports.stream = {
         logger.info(message.slice(0, -1));
     }
 };
-module.exports.sendMQMessage = sendMQMessage;
+module.exports.sendMQMessage = sendMQMessage
+module.exports.log2 = log2
