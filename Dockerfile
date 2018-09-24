@@ -14,7 +14,7 @@ RUN apk update && apk add --no-cache --update \
 # oxPassport
 # ==========
 ENV OX_VERSION 3.1.4
-ENV OX_BUILD_DATE 2018-09-14
+ENV OX_BUILD_DATE 2018-09-22
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${OX_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -24,14 +24,6 @@ RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${O
     && cd /opt/gluu/node/passport \
     && npm install
 
-# ======
-# Python
-# ======
-
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install -U pip \
-    && pip install --no-cache-dir -r /tmp/requirements.txt
-
 # ====
 # Tini
 # ====
@@ -39,6 +31,14 @@ RUN pip install -U pip \
 ENV TINI_VERSION v0.18.0
 RUN wget -q --no-check-certificate https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static -O /usr/bin/tini \
     && chmod +x /usr/bin/tini
+
+# ======
+# Python
+# ======
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -U pip \
+    && pip install --no-cache-dir -r /tmp/requirements.txt
 
 # ====
 # misc
