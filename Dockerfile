@@ -14,7 +14,7 @@ RUN apk update && apk add --no-cache --update \
 # oxPassport
 # ==========
 ENV OX_VERSION 3.1.4
-ENV OX_BUILD_DATE 2018-09-22
+ENV OX_BUILD_DATE 2018-09-26
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${OX_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
