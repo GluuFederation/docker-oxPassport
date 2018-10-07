@@ -70,7 +70,8 @@ COPY entrypoint.sh /opt/scripts/
 COPY entrypoint.py /opt/scripts/
 COPY passport-config.json.tmpl /tmp/
 COPY passport-saml-config.json /etc/gluu/conf/
-COPY logger.js /opt/gluu/node/passport/server/utils/
+# patch logger.js to use Console transport for easier logs access
+RUN sed 's/DailyRotateFile/Console/g' -i /opt/gluu/node/passport/server/utils/logger.js
 COPY wait-for-it /opt/scripts/
 COPY gluu_config.py /opt/scripts
 
