@@ -114,6 +114,6 @@ if __name__ == "__main__":
     )
     config_manager = ConfigManager()
     wait_for_config(config_manager)
-    wait_for_oxauth()
-    wait_for_oxtrust()
+    # wait_for_oxauth()
+    # wait_for_oxtrust()
     execute_passed_command(sys.argv[1:])
