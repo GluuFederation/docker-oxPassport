@@ -76,5 +76,10 @@ RUN sed 's/DailyRotateFile/Console/g' -i /opt/gluu/node/passport/server/utils/lo
 RUN chmod +x /opt/scripts/entrypoint.sh
 RUN chmod +x /opt/scripts/wait-for-it.sh
 
+# allow root group to write files to directories below
+RUN chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
+    && chgrp -R 0 /opt/gluu/node/passport && chmod -R g=u /opt/gluu/node/passport \
+    && chgrp -R 0 /etc/gluu/conf && chmod -R g=u /etc/gluu/conf
+
 ENTRYPOINT ["tini", "--"]
 CMD ["/opt/scripts/wait-for-it.sh", "/opt/scripts/entrypoint.sh" ]
