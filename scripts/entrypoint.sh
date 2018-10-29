@@ -1,12 +1,12 @@
 #!/bin/sh
 
-if [ ! -f /touched ]; then
+if [ ! -f /deploy/touched ]; then
     if [ -f /etc/redhat-release ]; then
         source scl_source enable python27 && python /opt/scripts/entrypoint.py
     else
         python /opt/scripts/entrypoint.py
     fi
-    touch /touched
+    touch /deploy/touched
 fi
 
 if [ -f /etc/redhat-release ]; then

@@ -1,18 +1,19 @@
 FROM registry.access.redhat.com/rhel7-minimal
 
-LABEL maintainer="Gluu Inc. <support@gluu.org>"
-
 # =============
 # RHEL packages
 # =============
-RUN microdnf --enablerepo=rhel-server-rhscl-7-rpms --enablerepo=rhel-7-server-rpms install \
-    python27-python-pip wget tar gzip rh-nodejs8 net-tools bind-utils iputils \
-    && microdnf update \
+
+RUN REPOLIST=rhel-7-server-rpms,rhel-server-rhscl-7-rpms \
+    INSTALL_PKGS="python27-python-pip wget tar gzip rh-nodejs8 net-tools bind-utils iputils shadow-utils" \
+    && microdnf -y update --enablerepo rhel-7-server-rpms --enablerepo rhel-server-rhscl-7-rpms --setopt=tsflags=nodocs \
+    && microdnf -y install --enablerepo rhel-7-server-rpms --enablerepo rhel-server-rhscl-7-rpms --setopt=tsflags=nodocs ${INSTALL_PKGS} \
     && microdnf clean all
 
 # ==========
 # oxPassport
 # ==========
+
 ENV OX_VERSION 3.1.4
 ENV OX_BUILD_DATE 2018-09-27
 
@@ -46,9 +47,18 @@ RUN source scl_source enable python27 \
 # misc
 # ====
 
-RUN mkdir -p /opt/scripts && \
-    mkdir -p /etc/certs && \
-    mkdir -p /etc/gluu/conf
+LABEL name="oxPassport" \
+    maintainer="Gluu Inc. <support@gluu.org>" \
+    vendor="Gluu Federation" \
+    version="3.1.4" \
+    release="01" \
+    summary="Gluu's oxPassport app" \
+    description="Gluu Interface to the Passport Javascript social login framework"
+
+RUN mkdir -p /opt/scripts \
+    && mkdir -p /etc/certs \
+    && mkdir -p /etc/gluu/conf \
+    && mkdir -p /deploy
 
 ENV GLUU_CONFIG_ADAPTER consul
 ENV GLUU_CONSUL_HOST localhost
@@ -66,8 +76,6 @@ ENV NODE_LOGGING_DIR /opt/gluu/node/passport/server/logs
 
 EXPOSE 8090
 
-VOLUME /etc/gluu/conf/
-
 COPY templates/passport-config.json.tmpl /tmp/
 COPY templates/passport-saml-config.json /etc/gluu/conf/
 COPY scripts /opt/scripts/
@@ -76,10 +84,18 @@ RUN sed 's/DailyRotateFile/Console/g' -i /opt/gluu/node/passport/server/utils/lo
 RUN chmod +x /opt/scripts/entrypoint.sh
 RUN chmod +x /opt/scripts/wait-for-it.sh
 
-# allow root group to write files to directories below
-RUN chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
-    && chgrp -R 0 /opt/gluu/node/passport && chmod -R g=u /opt/gluu/node/passport \
-    && chgrp -R 0 /etc/gluu/conf && chmod -R g=u /etc/gluu/conf
+# create user
+RUN useradd -ms /bin/sh node
+# adjust ownership
+RUN chown -R root:node /etc/certs \
+    && chown -R root:node /etc/gluu \
+    && chown -R node:node /opt/gluu/node \
+    && chown -R node:node /deploy \
+    && chmod -R g+w /etc/certs \
+    && chmod -R g+w /etc/gluu
 
+VOLUME /etc/gluu/conf/
+
+USER node
 ENTRYPOINT ["tini", "--"]
 CMD ["/opt/scripts/wait-for-it.sh", "/opt/scripts/entrypoint.sh" ]
