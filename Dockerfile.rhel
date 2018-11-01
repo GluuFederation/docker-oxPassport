@@ -84,18 +84,20 @@ RUN sed 's/DailyRotateFile/Console/g' -i /opt/gluu/node/passport/server/utils/lo
 RUN chmod +x /opt/scripts/entrypoint.sh
 RUN chmod +x /opt/scripts/wait-for-it.sh
 
-# create user
-RUN useradd -ms /bin/sh node
+# create node user
+RUN useradd -ms /bin/sh --uid 1000 node \
+    && usermod -a -G root node
+
 # adjust ownership
-RUN chown -R root:node /etc/certs \
-    && chown -R root:node /etc/gluu \
-    && chown -R node:node /opt/gluu/node \
-    && chown -R node:node /deploy \
-    && chmod -R g+w /etc/certs \
-    && chmod -R g+w /etc/gluu
+RUN chown -R 1000:1000 /opt/gluu/node \
+    && chown -R 1000:1000 /deploy \
+    && chgrp -R 0 /opt/gluu/node && chmod -R g=u /opt/gluu/node \
+    && chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
+    && chgrp -R 0 /etc/gluu && chmod -R g=u /etc/gluu \
+    && chgrp -R 0 /deploy && chmod -R g=u /deploy
 
-VOLUME /etc/gluu/conf/
+# run as non-root user
+USER 1000
 
-USER node
 ENTRYPOINT ["tini", "--"]
 CMD ["/opt/scripts/wait-for-it.sh", "/opt/scripts/entrypoint.sh" ]
