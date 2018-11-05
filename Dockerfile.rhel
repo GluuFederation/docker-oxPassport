@@ -60,6 +60,10 @@ RUN mkdir -p /opt/scripts \
     && mkdir -p /etc/gluu/conf \
     && mkdir -p /deploy
 
+# license
+RUN mkdir -p /licenses
+COPY LICENSE /licenses/MIT.txt
+
 ENV GLUU_CONFIG_ADAPTER consul
 ENV GLUU_CONSUL_HOST localhost
 ENV GLUU_CONSUL_PORT 8500
