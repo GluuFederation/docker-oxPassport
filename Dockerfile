@@ -94,19 +94,19 @@ COPY scripts /opt/scripts/
 RUN sed 's/DailyRotateFile/Console/g' -i /opt/gluu/node/passport/server/utils/logger.js
 RUN chmod +x /opt/scripts/entrypoint.sh
 
-# make node user as part of root group
-RUN usermod -a -G root node
+# # make node user as part of root group
+# RUN usermod -a -G root node
 
-# adjust ownership
-RUN chown -R 1000:1000 /opt/gluu/node \
-    && chown -R 1000:1000 /deploy \
-    && chgrp -R 0 /opt/gluu/node && chmod -R g=u /opt/gluu/node \
-    && chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
-    && chgrp -R 0 /etc/gluu && chmod -R g=u /etc/gluu \
-    && chgrp -R 0 /deploy && chmod -R g=u /deploy
+# # adjust ownership
+# RUN chown -R 1000:1000 /opt/gluu/node \
+#     && chown -R 1000:1000 /deploy \
+#     && chgrp -R 0 /opt/gluu/node && chmod -R g=u /opt/gluu/node \
+#     && chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
+#     && chgrp -R 0 /etc/gluu && chmod -R g=u /etc/gluu \
+#     && chgrp -R 0 /deploy && chmod -R g=u /deploy
 
-# run as non-root user
-USER 1000
+# # run as non-root user
+# USER 1000
 
 ENTRYPOINT ["tini", "-g", "--"]
 CMD ["/opt/scripts/entrypoint.sh" ]
