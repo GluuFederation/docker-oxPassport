@@ -52,23 +52,23 @@ if __name__ == "__main__":
     }
 
     config = {
-        '%hostname': hostname,
-        '%passport_rp_client_id': passport_rp_client_id,
-        '%passport_rp_client_cert_fn': passport_rp_client_cert_fn,
-        '%passport_rp_client_cert_alias': passport_rp_client_cert_alias,
-        '%passport_rp_client_cert_alg': passport_rp_client_cert_alg,
-        '%idpSigningCert': idpSigningCert,
+        'hostname': hostname,
+        'passport_rp_client_id': passport_rp_client_id,
+        'passport_rp_client_cert_fn': passport_rp_client_cert_fn,
+        'passport_rp_client_cert_alias': passport_rp_client_cert_alias,
+        'passport_rp_client_cert_alg': passport_rp_client_cert_alg,
+        'idpSigningCert': idpSigningCert,
     }
 
     # Automatically create passport-config.json from entries
     with open('/tmp/passport-config.json.tmpl', 'r') as file_:
-        data = file_.read()
+        data = file_.read() % config
 
-    for k, v in config.iteritems():
-        data = data.replace(k, v)
+        # for k, v in config.iteritems():
+        #     data = data.replace(k, v)
 
-    with open('/etc/gluu/conf/passport-config.json', 'w') as file_:
-        file_.write(data)
+        with open('/etc/gluu/conf/passport-config.json', 'w') as file_:
+            file_.write(data)
 
     # Write necessary certificates to file
     for cert_fn, cert in certs.iteritems():

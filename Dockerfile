@@ -14,8 +14,8 @@ RUN apk update && apk add --no-cache --update \
 # ==========
 # oxPassport
 # ==========
-ENV OX_VERSION 3.1.4
-ENV OX_BUILD_DATE 2018-09-27
+ENV OX_VERSION 3.1.5
+ENV OX_BUILD_DATE 2019-01-14
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${OX_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -90,9 +90,10 @@ EXPOSE 8090
 
 COPY templates/passport-config.json.tmpl /tmp/
 COPY templates/passport-saml-config.json /etc/gluu/conf/
+COPY templates/passport-inbound-idp-initiated.json /etc/gluu/conf/
 COPY scripts /opt/scripts/
 # patch logger.js to use Console transport for easier logs access
-RUN sed 's/DailyRotateFile/Console/g' -i /opt/gluu/node/passport/server/utils/logger.js
+# RUN sed 's/DailyRotateFile/Console/g' -i /opt/gluu/node/passport/server/utils/logger.js
 RUN chmod +x /opt/scripts/entrypoint.sh
 
 # # make node user as part of root group
