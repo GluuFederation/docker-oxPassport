@@ -1,4 +1,6 @@
 import base64
+import os
+import shutil
 
 from pyDes import triple_des, PAD_PKCS5
 
@@ -16,6 +18,29 @@ def unobscure(s=""):
 def writeCerts(cert_fn, cert):
     with open(cert_fn, 'w') as file_:
         file_.write(cert)
+
+
+def copy_static_templates():
+    """Copies static templates (default) to /etc/gluu/conf directories.
+
+    Prior to v3.1.5, `/etc/gluu/conf` is defined as VOLUME which cause issue
+    in some of orchestrator (i.e. docker-compose) when switching image from
+    older version to v3.1.5, as the volume is preserved and requires
+    a full re-deploy of the container.
+
+    This operation is safe because it checks for non-existing file first before
+    copying the template, hence any mounted file will be left intact.
+    """
+    templates = [
+        "passport-saml-config.json",
+        "passport-inbound-idp-initiated.json",
+    ]
+
+    for template in templates:
+        src = "/opt/templates/{}".format(template)
+        dst = "/etc/gluu/conf/{}".format(template)
+        if not os.path.exists(dst):
+            shutil.copyfile(src, dst)
 
 
 if __name__ == "__main__":
@@ -61,11 +86,8 @@ if __name__ == "__main__":
     }
 
     # Automatically create passport-config.json from entries
-    with open('/tmp/passport-config.json.tmpl', 'r') as file_:
+    with open('/opt/templates/passport-config.json.tmpl', 'r') as file_:
         data = file_.read() % config
-
-        # for k, v in config.iteritems():
-        #     data = data.replace(k, v)
 
         with open('/etc/gluu/conf/passport-config.json', 'w') as file_:
             file_.write(data)
@@ -73,3 +95,5 @@ if __name__ == "__main__":
     # Write necessary certificates to file
     for cert_fn, cert in certs.iteritems():
         writeCerts(cert_fn, cert)
+
+    copy_static_templates()

@@ -45,7 +45,7 @@ RUN pip install -U pip \
 # misc
 # ====
 
-RUN mkdir -p /opt/scripts \
+RUN mkdir -p /opt/scripts /opt/templates \
     && mkdir -p /etc/certs \
     && mkdir -p /etc/gluu/conf \
     && mkdir -p /deploy
@@ -96,12 +96,8 @@ ENV GLUU_WAIT_SLEEP_DURATION 5
 
 EXPOSE 8090
 
-COPY templates/passport-config.json.tmpl /tmp/
-COPY templates/passport-saml-config.json /etc/gluu/conf/
-COPY templates/passport-inbound-idp-initiated.json /etc/gluu/conf/
+COPY templates /opt/templates
 COPY scripts /opt/scripts/
-# patch logger.js to use Console transport for easier logs access
-# RUN sed 's/DailyRotateFile/Console/g' -i /opt/gluu/node/passport/server/utils/logger.js
 RUN chmod +x /opt/scripts/entrypoint.sh
 
 # # make node user as part of root group
