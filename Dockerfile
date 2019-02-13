@@ -64,7 +64,7 @@ ENV NODE_LOGGING_DIR /opt/gluu/node/passport/server/logs
 
 EXPOSE 8090
 
-VOLUME /etc/gluu/conf/
+# VOLUME /etc/gluu/conf/
 
 COPY entrypoint.sh /opt/scripts/
 COPY entrypoint.py /opt/scripts/
