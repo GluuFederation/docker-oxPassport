@@ -2,6 +2,13 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 3.1.4_02
+
+Released on February 13th, 2019.
+
+* Updated `applicationEndpoint` value in `/etc/gluu/conf/passport-config.json`.
+* Disabled `VOLUME` definition for `/etc/gluu/conf`.
+
 ## Version 3.1.4_01
 
 Released on November 12th, 2018.
