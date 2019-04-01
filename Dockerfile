@@ -40,6 +40,13 @@ COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
     && pip install --no-cache-dir -r /tmp/requirements.txt
 
+# =======
+# License
+# =======
+
+RUN mkdir -p /licenses
+COPY LICENSE /licenses/
+
 # ====
 # misc
 # ====
@@ -74,7 +81,9 @@ COPY passport-saml-config.json /etc/gluu/conf/
 RUN sed 's/DailyRotateFile/Console/g' -i /opt/gluu/node/passport/server/utils/logger.js
 COPY wait-for-it /opt/scripts/
 COPY gluu_config.py /opt/scripts
+COPY license_checker.py /opt/scripts
 
 RUN chmod +x /opt/scripts/entrypoint.sh
+RUN chmod +x /opt/scripts/license_checker.py
 ENTRYPOINT ["tini", "--"]
-CMD ["/opt/scripts/wait-for-it", "/opt/scripts/entrypoint.sh" ]
+CMD ["/opt/scripts/license_checker.py", "/opt/scripts/wait-for-it", "/opt/scripts/entrypoint.sh" ]
