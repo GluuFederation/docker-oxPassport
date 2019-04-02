@@ -67,6 +67,7 @@ ENV GLUU_CONSUL_KEY_FILE /etc/certs/consul_client.key
 ENV GLUU_CONSUL_TOKEN_FILE /etc/certs/consul_token
 ENV GLUU_KUBERNETES_NAMESPACE default
 ENV GLUU_KUBERNETES_CONFIGMAP gluu
+ENV GLUU_AUTO_ACK_LICENSE false
 ENV NODE_LOGGING_DIR /opt/gluu/node/passport/server/logs
 
 EXPOSE 8090
