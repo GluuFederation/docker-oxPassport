@@ -26,6 +26,14 @@ MAX_WAIT_SECONDS = 300
 SLEEP_DURATION = 5
 LAST_CONFIG_KEY = "oxauth_openid_jwks_fn"
 
+LICENSE_ACK = """
+# ========================================================================================= #
+# Gluu License Agreement: https://github.com/GluuFederation/gluu-docker/blob/3.1.4/LICENSE. #
+# The use of Gluu Server Docker Edition is subject to the Gluu Support License.             #
+# ========================================================================================= #
+
+"""
+
 # When debugging wait-for-it, set level=log.INFO or pass
 # --log=DEBUG on the command line.
 log.basicConfig(
@@ -109,6 +117,8 @@ def execute_passed_command(command_list):
 
 
 if __name__ == "__main__":
+    print LICENSE_ACK
+
     log.info(
         "Hi world, waiting for config backend, oxAuth, and oxTrust to be ready before " +
         "running " + " ".join(sys.argv[1:])
