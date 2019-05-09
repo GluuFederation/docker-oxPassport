@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:10-alpine
 
 LABEL maintainer="Gluu Inc. <support@gluu.org>"
 
