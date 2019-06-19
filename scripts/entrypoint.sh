@@ -12,9 +12,9 @@ cat << LICENSE_ACK
 LICENSE_ACK
 
 if [ -f /etc/redhat-release ]; then
-    source scl_source enable python27 && python /opt/scripts/wait_for.py --deps="config,secret"
+    source scl_source enable python27 && python /app/scripts/wait_for.py --deps="config,secret"
 else
-    python /opt/scripts/wait_for.py --deps="config,secret"
+    python /app/scripts/wait_for.py --deps="config,secret"
 fi
 
 if [ ! -f /deploy/touched ]; then
@@ -22,9 +22,9 @@ if [ ! -f /deploy/touched ]; then
         mv /touched /deploy/touched
     else
         if [ -f /etc/redhat-release ]; then
-            source scl_source enable python27 && python /opt/scripts/entrypoint.py
+            source scl_source enable python27 && python /app/scripts/entrypoint.py
         else
-            python /opt/scripts/entrypoint.py
+            python /app/scripts/entrypoint.py
         fi
 
         touch /deploy/touched

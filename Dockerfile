@@ -15,7 +15,7 @@ RUN apk update && apk add --no-cache --update \
 # oxPassport
 # ==========
 ENV OX_VERSION 4.0.0
-ENV OX_BUILD_DATE 2019-05-07
+ENV OX_BUILD_DATE 2019-06-19
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${OX_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -52,7 +52,7 @@ COPY LICENSE /licenses/
 # misc
 # ====
 
-RUN mkdir -p /opt/scripts /opt/templates \
+RUN mkdir -p /app \
     && mkdir -p /etc/certs \
     && mkdir -p /etc/gluu/conf \
     && mkdir -p /deploy
@@ -103,9 +103,8 @@ ENV GLUU_WAIT_SLEEP_DURATION 5
 
 EXPOSE 8090
 
-COPY templates /opt/templates
-COPY scripts /opt/scripts/
-RUN chmod +x /opt/scripts/entrypoint.sh
+COPY templates /app/templates
+COPY scripts /app/scripts/
 
 # # make node user as part of root group
 # RUN usermod -a -G root node
@@ -122,4 +121,4 @@ RUN chmod +x /opt/scripts/entrypoint.sh
 # USER 1000
 
 ENTRYPOINT ["tini", "-g", "--"]
-CMD ["/opt/scripts/entrypoint.sh" ]
+CMD ["sh", "/app/scripts/entrypoint.sh" ]
