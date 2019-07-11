@@ -1,5 +1,5 @@
 import base64
-# import os
+import os
 import re
 # import shutil
 
@@ -92,6 +92,10 @@ if __name__ == "__main__":
 
         # ensure logs emitted to stdout
         data = re.sub(r'("consoleLogOnly": )false', r"\1true", data, flags=re.DOTALL | re.M)
+
+        log_level = os.environ.get("PASSPORT_LOG_LEVEL", "info")
+        # changing log level
+        data = re.sub(r'("logLevel": )"info"', r'\1"{}"'.format(log_level), data, flags=re.DOTALL | re.M)
 
         with open('/etc/gluu/conf/passport-config.json', 'w') as file_:
             file_.write(data)
