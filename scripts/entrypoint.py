@@ -3,14 +3,6 @@ import re
 # import shutil
 
 from pygluu.containerlib import get_manager
-from pygluu.containerlib.utils import decode_text
-
-manager = get_manager()
-
-
-def writeCerts(cert_fn, cert):
-    with open(cert_fn, 'w') as file_:
-        file_.write(cert)
 
 
 # def copy_static_templates():
@@ -36,58 +28,55 @@ def writeCerts(cert_fn, cert):
 #             shutil.copyfile(src, dst)
 
 
-if __name__ == "__main__":
-    hostname = manager.config.get("hostname")
-    salt = manager.secret.get("encoded_salt")
-
-    passport_rp_client_id = manager.config.get("passport_rp_client_id")
-    passport_rp_client_cert_fn = manager.config.get("passport_rp_client_cert_fn")
-    passport_rp_client_cert = decode_text(
-        manager.secret.get("passport_rp_client_cert_base64"),
-        salt,
-    )
-    passport_rp_client_cert_alias = manager.config.get("passport_rp_client_cert_alias")
-    passport_rp_client_cert_alg = manager.config.get("passport_rp_client_cert_alg")
-
-    passport_rp_client_jks_fn = manager.config.get("passport_rp_client_jks_fn")
-    passport_rp_jks = decode_text(
-        manager.secret.get("passport_rp_jks_base64"),
-        salt,
+def sync_jks(manager):
+    # render passport-rp.jks
+    manager.secret.to_file(
+        "passport_rp_jks_base64",
+        manager.config.get("passport_rp_client_jks_fn"),
+        decode=True,
+        binary_mode=True,
     )
 
-    passport_sp_cert = decode_text(
-        manager.secret.get("passport_sp_cert_base64"),
-        salt,
+    # render passport-rs.jks
+    manager.secret.to_file(
+        "passport_rs_jks_base64",
+        manager.config.get("passport_rs_client_jks_fn"),
+        decode=True,
+        binary_mode=True,
     )
-    passport_sp_key = decode_text(
-        manager.secret.get("passport_sp_key_base64"),
-        salt,
+
+
+def sync_certs(manager):
+    # render passport-rp.crt
+    manager.secret.to_file(
+        "passport_rp_client_cert_base64",
+        manager.config.get("passport_rp_client_cert_fn"),
+        decode=True,
     )
 
-    passport_rs_jks = decode_text(
-        manager.secret.get("passport_rs_jks_base64"),
-        salt,
-    )
-    passport_rs_client_jks_fn = manager.config.get("passport_rs_client_jks_fn")
+    # render idp-signing.crt
+    manager.secret.to_file("idp3SigningCertificateText",
+                           "/etc/certs/idp-signing.crt")
 
-    idpSigningCert = manager.secret.get("idp3SigningCertificateText")
+    # render passport-sp.crt
+    manager.secret.to_file("passport_sp_cert_base64",
+                           "/etc/certs/passport-sp.crt",
+                           decode=True)
 
-    certs = {
-        passport_rs_client_jks_fn: passport_rs_jks,
-        passport_rp_client_jks_fn: passport_rp_jks,
-        passport_rp_client_cert_fn: passport_rp_client_cert,
-        '/etc/certs/idp-signing.crt': idpSigningCert,
-        '/etc/certs/passport-sp.crt': passport_sp_cert,
-        '/etc/certs/passport-sp.key': passport_sp_key,
-    }
+    # render passport-sp.key
+    manager.secret.to_file("passport_sp_key_base64",
+                           "/etc/certs/passport-sp.key",
+                           decode=True)
 
+
+def render_passport_config(manager):
     config = {
-        'hostname': hostname,
-        'passport_rp_client_id': passport_rp_client_id,
-        'passport_rp_client_cert_fn': passport_rp_client_cert_fn,
-        'passport_rp_client_cert_alias': passport_rp_client_cert_alias,
-        'passport_rp_client_cert_alg': passport_rp_client_cert_alg,
-        'idpSigningCert': idpSigningCert,
+        'hostname': manager.config.get("hostname"),
+        'passport_rp_client_id': manager.config.get("passport_rp_client_id"),
+        'passport_rp_client_cert_fn': manager.config.get("passport_rp_client_cert_fn"),
+        'passport_rp_client_cert_alias': manager.config.get("passport_rp_client_cert_alias"),
+        'passport_rp_client_cert_alg': manager.config.get("passport_rp_client_cert_alg"),
+        "idpSigningCert": manager.secret.get("idp3SigningCertificateText"),
     }
 
     # Automatically create passport-config.json from entries
@@ -104,8 +93,14 @@ if __name__ == "__main__":
         with open('/etc/gluu/conf/passport-config.json', 'w') as file_:
             file_.write(data)
 
-    # Write necessary certificates to file
-    for cert_fn, cert in certs.iteritems():
-        writeCerts(cert_fn, cert)
 
+def main():
+    manager = get_manager()
+    sync_jks(manager)
+    sync_certs(manager)
+    render_passport_config(manager)
     # copy_static_templates()
+
+
+if __name__ == "__main__":
+    main()
