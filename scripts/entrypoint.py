@@ -1,19 +1,11 @@
-import base64
 import os
 import re
 # import shutil
 
-from pyDes import triple_des, PAD_PKCS5
-
-from gluulib import get_manager
+from pygluu.containerlib import get_manager
+from pygluu.containerlib.utils import decode_text
 
 manager = get_manager()
-
-
-def unobscure(s=""):
-    cipher = triple_des(b"{}".format(manager.secret.get("encoded_salt")))
-    decrypted = cipher.decrypt(base64.b64decode(s), padmode=PAD_PKCS5)
-    return decrypted
 
 
 def writeCerts(cert_fn, cert):
@@ -46,24 +38,36 @@ def writeCerts(cert_fn, cert):
 
 if __name__ == "__main__":
     hostname = manager.config.get("hostname")
+    salt = manager.secret.get("encoded_salt")
+
     passport_rp_client_id = manager.config.get("passport_rp_client_id")
     passport_rp_client_cert_fn = manager.config.get("passport_rp_client_cert_fn")
-    passport_rp_client_cert_base64 = manager.secret.get("passport_rp_client_cert_base64")
-    passport_rp_client_cert = unobscure(b"{}".format(passport_rp_client_cert_base64))
+    passport_rp_client_cert = decode_text(
+        manager.secret.get("passport_rp_client_cert_base64"),
+        salt,
+    )
     passport_rp_client_cert_alias = manager.config.get("passport_rp_client_cert_alias")
     passport_rp_client_cert_alg = manager.config.get("passport_rp_client_cert_alg")
 
-    passport_rp_jks_base64 = manager.secret.get("passport_rp_jks_base64")
     passport_rp_client_jks_fn = manager.config.get("passport_rp_client_jks_fn")
-    passport_rp_jks = unobscure(b"{}".format(passport_rp_jks_base64))
+    passport_rp_jks = decode_text(
+        manager.secret.get("passport_rp_jks_base64"),
+        salt,
+    )
 
-    passport_sp_cert_base64 = manager.secret.get("passport_sp_cert_base64")
-    passport_sp_key_base64 = manager.secret.get("passport_sp_key_base64")
-    passport_sp_cert = unobscure(b"{}".format(passport_sp_cert_base64))
-    passport_sp_key = unobscure(b"{}".format(passport_sp_key_base64))
+    passport_sp_cert = decode_text(
+        manager.secret.get("passport_sp_cert_base64"),
+        salt,
+    )
+    passport_sp_key = decode_text(
+        manager.secret.get("passport_sp_key_base64"),
+        salt,
+    )
 
-    passport_rs_jks_base64 = manager.secret.get("passport_rs_jks_base64")
-    passport_rs_jks = unobscure(b"{}".format(passport_rs_jks_base64))
+    passport_rs_jks = decode_text(
+        manager.secret.get("passport_rs_jks_base64"),
+        salt,
+    )
     passport_rs_client_jks_fn = manager.config.get("passport_rs_client_jks_fn")
 
     idpSigningCert = manager.secret.get("idp3SigningCertificateText")

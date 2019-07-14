@@ -9,7 +9,8 @@ LABEL maintainer="Gluu Inc. <support@gluu.org>"
 RUN apk update && apk add --no-cache --update \
     wget \
     py-pip \
-    shadow
+    shadow \
+    git
 
 # ==========
 # oxPassport
