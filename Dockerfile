@@ -1,7 +1,5 @@
 FROM node:10-alpine
 
-LABEL maintainer="Gluu Inc. <support@gluu.org>"
-
 # ===============
 # Alpine packages
 # ===============
@@ -16,10 +14,10 @@ RUN apk update && apk add --no-cache --update \
 # oxPassport
 # ==========
 
-ENV OX_VERSION=4.0.0 \
-    OX_BUILD_DATE=2019-07-31
+ENV GLUU_VERSION=4.0.0 \
+    GLUU_BUILD_DATE=2019-08-15
 
-RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${OX_VERSION}.tgz -O /tmp/passport.tgz \
+RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
     && tar -xf /tmp/passport.tgz --strip-components=1 -C /opt/gluu/node/passport \
     && rm /tmp/passport.tgz \
@@ -106,8 +104,21 @@ ENV NODE_LOGGING_DIR=/opt/gluu/node/passport/server/logs \
 
 EXPOSE 8090
 
+# ====
+# misc
+# ====
+
+LABEL name="oxPassport" \
+    maintainer="Gluu Inc. <support@gluu.org>" \
+    vendor="Gluu Federation" \
+    version="4.0.0" \
+    release="dev" \
+    summary="Gluu oxPassport" \
+    description="Gluu interface to Passport.js to support social login and inbound identity"
+
 COPY templates /app/templates
 COPY scripts /app/scripts/
+RUN chmod +x /app/scripts/entrypoint.sh
 
 # # make node user as part of root group
 # RUN usermod -a -G root node
@@ -124,4 +135,4 @@ COPY scripts /app/scripts/
 # USER 1000
 
 ENTRYPOINT ["tini", "-g", "--"]
-CMD ["sh", "/app/scripts/entrypoint.sh" ]
+CMD ["/app/scripts/entrypoint.sh" ]
