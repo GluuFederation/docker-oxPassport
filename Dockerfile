@@ -15,7 +15,7 @@ RUN apk update && apk add --no-cache --update \
 # ==========
 
 ENV GLUU_VERSION=4.0.0 \
-    GLUU_BUILD_DATE=2019-09-06
+    GLUU_BUILD_DATE=2019-09-11
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -100,7 +100,7 @@ ENV GLUU_SECRET_ADAPTER=vault \
 ENV NODE_LOGGING_DIR=/opt/gluu/node/passport/server/logs \
     PASSPORT_LOG_LEVEL=info \
     GLUU_WAIT_MAX_TIME=300 \
-    GLUU_WAIT_SLEEP_DURATION=5
+    GLUU_WAIT_SLEEP_DURATION=10
 
 EXPOSE 8090
 
