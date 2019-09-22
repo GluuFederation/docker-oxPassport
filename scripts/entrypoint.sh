@@ -2,6 +2,17 @@
 
 set -e
 
+run_wait() {
+    python /app/scripts/wait.py
+}
+
+run_entrypoint() {
+    if [ ! -f /deploy/touched ]; then
+        python /app/scripts/entrypoint.py
+        touch /deploy/touched
+    fi
+}
+
 cat << LICENSE_ACK
 
 # ================================================================================================ #
@@ -11,30 +22,12 @@ cat << LICENSE_ACK
 
 LICENSE_ACK
 
-deps="config,secret"
-
 if [ -f /etc/redhat-release ]; then
-    source scl_source enable python27 && gluu-wait --deps="$deps"
-else
-    gluu-wait --deps="$deps"
-fi
-
-if [ ! -f /deploy/touched ]; then
-    if [ -f /touched ]; then
-        mv /touched /deploy/touched
-    else
-        if [ -f /etc/redhat-release ]; then
-            source scl_source enable python27 && python /app/scripts/entrypoint.py
-        else
-            python /app/scripts/entrypoint.py
-        fi
-
-        touch /deploy/touched
-    fi
-fi
-
-if [ -f /etc/redhat-release ]; then
+    source scl_source enable python27 && run_wait
+    source scl_source enable python27 && run_entrypoint
     source scl_source enable rh-nodejs8 && node /opt/gluu/node/passport/server/app.js
 else
-    exec node /opt/gluu/node/passport/server/app.js
+    run_wait
+    run_entrypoint
+    node /opt/gluu/node/passport/server/app.js
 fi

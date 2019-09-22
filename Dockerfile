@@ -4,18 +4,16 @@ FROM node:10-alpine
 # Alpine packages
 # ===============
 
-RUN apk update && apk add --no-cache --update \
-    wget \
-    py-pip \
-    shadow \
-    git
+RUN apk update \
+    && apk add --no-cache py-pip shadow \
+    && apk add --no-cache --virtual build-deps wget git
 
 # ==========
 # oxPassport
 # ==========
 
 ENV GLUU_VERSION=4.0.0 \
-    GLUU_BUILD_DATE=2019-09-11
+    GLUU_BUILD_DATE=2019-09-20
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -40,6 +38,13 @@ COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
     && pip install --no-cache-dir -r /tmp/requirements.txt \
     && apk del git
+
+# =======
+# Cleanup
+# =======
+
+RUN apk del build-deps \
+    && rm -rf /var/cache/apk/*
 
 # =======
 # License
