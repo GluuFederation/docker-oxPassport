@@ -13,7 +13,7 @@ RUN apk update \
 # ==========
 
 ENV GLUU_VERSION=4.0.0 \
-    GLUU_BUILD_DATE=2019-10-10 \
+    GLUU_BUILD_DATE=2019-10-14 \
     NODE_MODULES_VERSION=version_4.0
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
