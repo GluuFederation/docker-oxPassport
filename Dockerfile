@@ -13,15 +13,22 @@ RUN apk update \
 # ==========
 
 ENV GLUU_VERSION=4.0.0 \
-    GLUU_BUILD_DATE=2019-09-25
+    GLUU_BUILD_DATE=2019-10-10 \
+    NODE_MODULES_VERSION=version_4.0
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
     && tar -xf /tmp/passport.tgz --strip-components=1 -C /opt/gluu/node/passport \
-    && rm /tmp/passport.tgz \
-    && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
+    && rm /tmp/passport.tgz
+
+RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${NODE_MODULES_VERSION}-node_modules.tar.gz -O /tmp/node_modules.tar.gz \
+    && mkdir -p /opt/gluu/node/passport/node_modules \
+    && tar -xf /tmp/node_modules.tar.gz --strip-components=1 -C /opt/gluu/node/passport/node_modules \
+    && rm /tmp/node_modules.tar.gz
+
+RUN ln -s /usr/local/bin/node /usr/local/bin/nodejs \
     && cd /opt/gluu/node/passport \
-    && npm install
+    && npm install -P
 
 # ====
 # Tini
@@ -36,8 +43,7 @@ RUN wget -q --no-check-certificate https://github.com/krallin/tini/releases/down
 
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
-    && pip install --no-cache-dir -r /tmp/requirements.txt \
-    && apk del git
+    && pip install --no-cache-dir -r /tmp/requirements.txt
 
 # =======
 # Cleanup
