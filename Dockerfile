@@ -26,7 +26,7 @@ RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${N
     && tar -xf /tmp/node_modules.tar.gz --strip-components=1 -C /opt/gluu/node/passport/node_modules \
     && rm /tmp/node_modules.tar.gz
 
-RUN ln -s /usr/local/bin/node /usr/local/bin/nodejs \
+RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && cd /opt/gluu/node/passport \
     && npm install -P
 
