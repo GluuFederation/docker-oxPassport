@@ -2,6 +2,12 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.0.1_03
+
+Released on December 1st, 2019.
+
+* Upgraded Passport module.
+
 ## Version 4.0.1_02
 
 Released on November 14th, 2019.
