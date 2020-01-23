@@ -13,7 +13,7 @@ RUN apk update \
 # ==========
 
 ENV GLUU_VERSION=4.1.0 \
-    GLUU_BUILD_DATE=2020-01-15 \
+    GLUU_BUILD_DATE=2020-01-23 \
     NODE_MODULES_VERSION=version_4.1.0
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
@@ -146,4 +146,4 @@ RUN chmod +x /app/scripts/entrypoint.sh
 # USER 1000
 
 ENTRYPOINT ["tini", "-g", "--"]
-CMD ["/app/scripts/entrypoint.sh" ]
+CMD ["/app/scripts/entrypoint.sh"]

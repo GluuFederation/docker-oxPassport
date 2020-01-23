@@ -13,15 +13,6 @@ run_entrypoint() {
     fi
 }
 
-cat << LICENSE_ACK
-
-# ================================================================================= #
-# Gluu License Agreement: https://www.gluu.org/support-license/                     #
-# The use of Gluu Server Enterprise Edition is subject to the Gluu Support License. #
-# ================================================================================= #
-
-LICENSE_ACK
-
 if [ -f /etc/redhat-release ]; then
     source scl_source enable python27 && run_wait
     source scl_source enable python27 && run_entrypoint
