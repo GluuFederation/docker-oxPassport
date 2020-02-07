@@ -3,6 +3,7 @@ import re
 # import shutil
 
 from pygluu.containerlib import get_manager
+from pygluu.containerlib.persistence import render_salt
 
 
 # def copy_static_templates():
@@ -78,6 +79,7 @@ def main():
     manager.secret.to_file("passport_sp_key_base64", "/etc/certs/passport-sp.key", decode=True)
 
     render_passport_config(manager)
+    render_salt(manager, "/app/templates/salt.tmpl", "/etc/gluu/conf/salt")
     # copy_static_templates()
 
 
