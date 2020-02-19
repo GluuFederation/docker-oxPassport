@@ -13,7 +13,7 @@ RUN apk update \
 # ==========
 
 ENV GLUU_VERSION=4.0.0 \
-    GLUU_BUILD_DATE=2019-12-20 \
+    GLUU_BUILD_DATE=2020-02-12 \
     NODE_MODULES_VERSION=version_4.0.1
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
@@ -28,7 +28,8 @@ RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${N
 
 RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && cd /opt/gluu/node/passport \
-    && npm install -P
+    && npm install -P \
+    && npm install @nicokaiser/passport-apple --save
 
 # ====
 # Tini
@@ -123,10 +124,14 @@ LABEL name="oxPassport" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
     version="4.0.1" \
-    release="03" \
+    release="04" \
     summary="Gluu oxPassport" \
     description="Gluu interface to Passport.js to support social login and inbound identity"
 
+# overrides
+COPY static/providers.js /opt/gluu/node/passport/server/
+COPY static/routes.js /opt/gluu/node/passport/server/
+COPY static/apple.js /opt/gluu/node/passport/server/mappings/
 COPY templates /app/templates
 COPY scripts /app/scripts/
 RUN chmod +x /app/scripts/entrypoint.sh
