@@ -5,7 +5,7 @@ FROM node:10-alpine
 # ===============
 
 RUN apk update \
-    && apk add --no-cache py-pip shadow \
+    && apk add --no-cache py-pip \
     && apk add --no-cache --virtual build-deps wget git
 
 # ==========
@@ -14,7 +14,7 @@ RUN apk update \
 
 ENV NODE_MODULES_VERSION=version_4.1.0 \
     GLUU_VERSION=4.1.0 \
-    GLUU_BUILD_DATE=2020-02-18
+    GLUU_BUILD_DATE="2020-02-28 09:57"
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
