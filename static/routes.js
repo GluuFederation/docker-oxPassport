@@ -20,10 +20,10 @@ router.get('/auth/:provider/callback',
     callbackResponse)
 
 router.post('/auth/:provider/callback',
-	validateProvider,
-	require('express').urlencoded(),
-	authenticateRequestCallback,
-    callbackResponse)
+	    validateProvider,
+	    require('express').urlencoded(),
+	    authenticateRequestCallback,
+	    callbackResponse)
 
 router.get('/auth/:provider/:token',
 	validateProvider,
@@ -174,7 +174,7 @@ function callbackResponse(req, res) {
 				jti: uuid(),
 				exp: now / 1000 + 30,
 				iat: now,
-				data: user
+				data: misc.encrypt(user)
     		})
 
     logger.log2('debug', `Sending user data ${jwt} to: ${postUrl}`)
