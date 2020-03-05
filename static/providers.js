@@ -12,53 +12,58 @@ var prevConfigHash = 0
 //These are the (node) strategies loaded so far: [{id: "...", strategy: ...}, ... ]
 var passportStrategies = []
 
-function applyMapping(profile, provider) {
+function processProfile(provider, additionalParams, profile, done, extra) {
 
 	let mappedProfile
 	try {
-		let mapping = R.find(R.propEq('id', provider), global.providers).mapping,
-			additionalParams = profile.extras
-
-		delete profile.extras
+		let mapping = provider.mapping
 		logger.log2('silly', `Raw profile is ${JSON.stringify(profile._json)}`)
 		logger.log2('info', `Applying mapping '${mapping}' to profile`)
 
 		mappedProfile = require('./mappings/' + mapping)(profile, additionalParams)
-		logger.log2('debug', `Resulting profile data is\n${JSON.stringify(mappedProfile, null, 4)}`)
+		mappedProfile = R.mergeLeft(mappedProfile, extra)
 	} catch (err) {
 		logger.log2('error', `An error occurred: ${err}`)
+		mappedProfile = {}
 	}
-	return mappedProfile
+	logger.log2('debug', `Resulting profile data is\n${JSON.stringify(mappedProfile, null, 4)}`)
+	return done(null, mappedProfile)
 
 }
 
 function getVerifyFunction(prv) {
 
-	let arity = prv.verifyCallbackArity
+	let arity = prv.verifyCallbackArity,
+		extraParams = (provider, profile) => {
+							let data = { provider: provider }
+							if (profile.getAssertionXml) {
+								//this property is attached so idp-initiated code can parse the SAML assertion,
+								//however it is removed from the profile sent to oxauth afterwards (see misc.arrify)
+								data.getAssertionXml = profile.getAssertionXml
+							}
+							return data
+						}
 
 	let uncurried = (...args) => {
 		//profile and callback are the last 2 params in all passport verify functions,
 		//except for passport-openidconnect which does not follow this convention
-		let profile, extras, cb
+		let profile, additional
 
 		if (prv.passportStrategyId == 'passport-openidconnect') {
 			//Check passport-openidconnect/lib/strategy.js
 			let index = prv.options.passReqToCallback ? 1 : 0
 
 			profile = args[2 + index]
-			extras = args.slice(0, 2 + index)
-			extras = extras.concat(args.slice(3 + index, arity - 1))
+			additional = args.slice(0, 2 + index)
+			additional = additional.concat(args.slice(3 + index, arity - 1))
 		} else {
 			profile = args[arity - 2]
-			extras = args.slice(0, arity - 2)
+			additional = args.slice(0, arity - 2)
 		}
-		cb = args[arity - 1]
+
 		profile.providerKey = prv.id
-		profile.extras = extras
-
-		return cb(null, profile)
+		return processProfile(prv, additional, profile, args[arity - 1], extraParams(prv.id, profile))
 	}
-
 	//guarantee the function has the arity required
 	return R.curryN(arity, uncurried)
 
@@ -183,9 +188,7 @@ function fillMissingData(ps) {
 			options.consumerSecret = options.clientSecret
 		}
 		if (strategyId.indexOf('passport-apple') >= 0 && options.key) {
-			//Smells like apple...
 			try {
-				//TODO: we have to make the UI fields multiline so they can paste the contents and avoid this
 				options.key = require('fs').readFileSync(options.key, 'utf8')
 			} catch (e) {
 				logger.log2('warn', `There was a problem reading file ${options.key}. Ensure the file exists and is readable`)
@@ -193,7 +196,6 @@ function fillMissingData(ps) {
 				options.key = ''
 			}
 		}
-
 		//Fills verifyCallbackArity (number expected)
 		let prop = 'verifyCallbackArity',
 			value = pparams.get(strategyId, prop),
@@ -230,6 +232,5 @@ function setup(ps) {
 }
 
 module.exports = {
-	setup: setup,
-	applyMapping: applyMapping
+	setup: setup
 }
