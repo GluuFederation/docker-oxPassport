@@ -4,7 +4,7 @@ Docker image packaging for oxPassport.
 
 ## Versions
 
-- Unstable: N/A
+- Stable: `gluufederation/oxpassport:4.1.0_01`
 - Unstable: `gluufederation/oxpassport:4.1.0_dev`
 
 Refer to [Changelog](./CHANGES.md) for details on new features, bug fixes, or older releases.
