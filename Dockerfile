@@ -1,36 +1,41 @@
-FROM node:alpine
-
-LABEL maintainer="Gluu Inc. <support@gluu.org>"
+FROM node:10-alpine
 
 # ===============
 # Alpine packages
 # ===============
 
-RUN apk update && apk add --no-cache --update \
-    wget \
-    py-pip \
-    shadow
+RUN apk update \
+    && apk add --no-cache py-pip \
+    && apk add --no-cache --virtual build-deps wget git
 
 # ==========
 # oxPassport
 # ==========
-ENV OX_VERSION 3.1.5
-ENV OX_BUILD_DATE 2019-01-14
 
-RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${OX_VERSION}.tgz -O /tmp/passport.tgz \
+ENV NODE_MODULES_VERSION=version_4.1.0 \
+    GLUU_VERSION=4.1.0 \
+    GLUU_BUILD_DATE="2020-02-28 09:57"
+
+RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
     && tar -xf /tmp/passport.tgz --strip-components=1 -C /opt/gluu/node/passport \
-    && rm /tmp/passport.tgz \
-    && ln -s /usr/local/bin/node /usr/local/bin/nodejs \
+    && rm /tmp/passport.tgz
+
+RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${NODE_MODULES_VERSION}-node_modules.tar.gz -O /tmp/node_modules.tar.gz \
+    && mkdir -p /opt/gluu/node/passport/node_modules \
+    && tar -xf /tmp/node_modules.tar.gz --strip-components=1 -C /opt/gluu/node/passport/node_modules \
+    && rm /tmp/node_modules.tar.gz
+
+RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && cd /opt/gluu/node/passport \
-    && npm install
+    && npm install -P \
+    && npm install @nicokaiser/passport-apple --save
 
 # ====
 # Tini
 # ====
 
-ENV TINI_VERSION v0.18.0
-RUN wget -q --no-check-certificate https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static -O /usr/bin/tini \
+RUN wget -q --no-check-certificate https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
     && chmod +x /usr/bin/tini
 
 # ======
@@ -40,6 +45,13 @@ RUN wget -q --no-check-certificate https://github.com/krallin/tini/releases/down
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
     && pip install --no-cache-dir -r /tmp/requirements.txt
+
+# =======
+# Cleanup
+# =======
+
+RUN apk del build-deps \
+    && rm -rf /var/cache/apk/*
 
 # =======
 # License
@@ -52,7 +64,7 @@ COPY LICENSE /licenses/
 # misc
 # ====
 
-RUN mkdir -p /opt/scripts /opt/templates \
+RUN mkdir -p /app \
     && mkdir -p /etc/certs \
     && mkdir -p /etc/gluu/conf \
     && mkdir -p /deploy
@@ -61,51 +73,68 @@ RUN mkdir -p /opt/scripts /opt/templates \
 # Config ENV
 # ==========
 
-ENV GLUU_CONFIG_ADAPTER consul
-ENV GLUU_CONFIG_CONSUL_HOST localhost
-ENV GLUU_CONFIG_CONSUL_PORT 8500
-ENV GLUU_CONFIG_CONSUL_CONSISTENCY stale
-ENV GLUU_CONFIG_CONSUL_SCHEME http
-ENV GLUU_CONFIG_CONSUL_VERIFY false
-ENV GLUU_CONFIG_CONSUL_CACERT_FILE /etc/certs/consul_ca.crt
-ENV GLUU_CONFIG_CONSUL_CERT_FILE /etc/certs/consul_client.crt
-ENV GLUU_CONFIG_CONSUL_KEY_FILE /etc/certs/consul_client.key
-ENV GLUU_CONFIG_CONSUL_TOKEN_FILE /etc/certs/consul_token
-ENV GLUU_CONFIG_KUBERNETES_NAMESPACE default
-ENV GLUU_CONFIG_KUBERNETES_CONFIGMAP gluu
-ENV GLUU_CONFIG_KUBERNETES_USE_KUBE_CONFIG false
+ENV GLUU_CONFIG_ADAPTER=consul \
+    GLUU_CONFIG_CONSUL_HOST=localhost \
+    GLUU_CONFIG_CONSUL_PORT=8500 \
+    GLUU_CONFIG_CONSUL_CONSISTENCY=stale \
+    GLUU_CONFIG_CONSUL_SCHEME=http \
+    GLUU_CONFIG_CONSUL_VERIFY=false \
+    GLUU_CONFIG_CONSUL_CACERT_FILE=/etc/certs/consul_ca.crt \
+    GLUU_CONFIG_CONSUL_CERT_FILE=/etc/certs/consul_client.crt \
+    GLUU_CONFIG_CONSUL_KEY_FILE=/etc/certs/consul_client.key \
+    GLUU_CONFIG_CONSUL_TOKEN_FILE=/etc/certs/consul_token \
+    GLUU_CONFIG_KUBERNETES_NAMESPACE=default \
+    GLUU_CONFIG_KUBERNETES_CONFIGMAP=gluu \
+    GLUU_CONFIG_KUBERNETES_USE_KUBE_CONFIG=false
 
 # ==========
 # Secret ENV
 # ==========
 
-ENV GLUU_SECRET_ADAPTER vault
-ENV GLUU_SECRET_VAULT_SCHEME http
-ENV GLUU_SECRET_VAULT_HOST localhost
-ENV GLUU_SECRET_VAULT_PORT 8200
-ENV GLUU_SECRET_VAULT_VERIFY false
-ENV GLUU_SECRET_VAULT_ROLE_ID_FILE /etc/certs/vault_role_id
-ENV GLUU_SECRET_VAULT_SECRET_ID_FILE /etc/certs/vault_secret_id
-ENV GLUU_SECRET_VAULT_CERT_FILE /etc/certs/vault_client.crt
-ENV GLUU_SECRET_VAULT_KEY_FILE /etc/certs/vault_client.key
-ENV GLUU_SECRET_VAULT_CACERT_FILE /etc/certs/vault_ca.crt
-ENV GLUU_SECRET_KUBERNETES_NAMESPACE default
-ENV GLUU_SECRET_KUBERNETES_SECRET gluu
-ENV GLUU_SECRET_KUBERNETES_USE_KUBE_CONFIG false
+ENV GLUU_SECRET_ADAPTER=vault \
+    GLUU_SECRET_VAULT_SCHEME=http \
+    GLUU_SECRET_VAULT_HOST=localhost \
+    GLUU_SECRET_VAULT_PORT=8200 \
+    GLUU_SECRET_VAULT_VERIFY=false \
+    GLUU_SECRET_VAULT_ROLE_ID_FILE=/etc/certs/vault_role_id \
+    GLUU_SECRET_VAULT_SECRET_ID_FILE=/etc/certs/vault_secret_id \
+    GLUU_SECRET_VAULT_CERT_FILE=/etc/certs/vault_client.crt \
+    GLUU_SECRET_VAULT_KEY_FILE=/etc/certs/vault_client.key \
+    GLUU_SECRET_VAULT_CACERT_FILE=/etc/certs/vault_ca.crt \
+    GLUU_SECRET_KUBERNETES_NAMESPACE=default \
+    GLUU_SECRET_KUBERNETES_SECRET=gluu \
+    GLUU_SECRET_KUBERNETES_USE_KUBE_CONFIG=false
 
 # ===========
 # Generic ENV
 # ===========
 
-ENV NODE_LOGGING_DIR /opt/gluu/node/passport/server/logs
-ENV GLUU_WAIT_MAX_TIME 300
-ENV GLUU_WAIT_SLEEP_DURATION 5
+ENV NODE_LOGGING_DIR=/opt/gluu/node/passport/server/logs \
+    PASSPORT_LOG_LEVEL=info \
+    GLUU_WAIT_MAX_TIME=300 \
+    GLUU_WAIT_SLEEP_DURATION=10
 
 EXPOSE 8090
 
-COPY templates /opt/templates
-COPY scripts /opt/scripts/
-RUN chmod +x /opt/scripts/entrypoint.sh
+# ====
+# misc
+# ====
+
+LABEL name="oxPassport" \
+    maintainer="Gluu Inc. <support@gluu.org>" \
+    vendor="Gluu Federation" \
+    version="4.1.0" \
+    release="01" \
+    summary="Gluu oxPassport" \
+    description="Gluu interface to Passport.js to support social login and inbound identity"
+
+# overrides
+COPY static/providers.js /opt/gluu/node/passport/server/
+COPY static/routes.js /opt/gluu/node/passport/server/
+COPY static/apple.js /opt/gluu/node/passport/server/mappings/
+COPY templates /app/templates
+COPY scripts /app/scripts/
+RUN chmod +x /app/scripts/entrypoint.sh
 
 # # make node user as part of root group
 # RUN usermod -a -G root node
@@ -122,4 +151,4 @@ RUN chmod +x /opt/scripts/entrypoint.sh
 # USER 1000
 
 ENTRYPOINT ["tini", "-g", "--"]
-CMD ["/opt/scripts/entrypoint.sh" ]
+CMD ["/app/scripts/entrypoint.sh"]
