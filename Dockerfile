@@ -5,16 +5,17 @@ FROM node:10-alpine
 # ===============
 
 RUN apk update \
-    && apk add --no-cache py-pip \
-    && apk add --no-cache --virtual build-deps wget git
+    && apk add --no-cache py3-pip tini \
+    && apk add --no-cache --virtual build-deps wget git \
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && ln -sf /usr/bin/pip3 /usr/bin/pip
 
 # ==========
 # oxPassport
 # ==========
 
-ENV NODE_MODULES_VERSION=version_4.1.1 \
-    GLUU_VERSION=4.1.1 \
-    GLUU_BUILD_DATE="2020-05-11 12:24"
+ARG GLUU_VERSION=4.2.0
+ARG GLUU_BUILD_DATE="2020-05-12 17:27"
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -27,12 +28,12 @@ RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && npm install -P \
     && npm install @nicokaiser/passport-apple --save
 
-# ====
-# Tini
-# ====
+# # ====
+# # Tini
+# # ====
 
-RUN wget -q --no-check-certificate https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
-    && chmod +x /usr/bin/tini
+# RUN wget -q --no-check-certificate https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
+#     && chmod +x /usr/bin/tini
 
 # ======
 # Python
@@ -119,8 +120,8 @@ EXPOSE 8090
 LABEL name="oxPassport" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.1.1" \
-    release="01" \
+    version="4.2.0" \
+    release="dev" \
     summary="Gluu oxPassport" \
     description="Gluu interface to Passport.js to support social login and inbound identity"
 
@@ -147,4 +148,4 @@ RUN chmod +x /app/scripts/entrypoint.sh
 # USER 1000
 
 ENTRYPOINT ["tini", "-g", "--"]
-CMD ["/app/scripts/entrypoint.sh"]
+CMD ["sh", "/app/scripts/entrypoint.sh"]
