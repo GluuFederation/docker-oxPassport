@@ -39,6 +39,7 @@ RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
 # Python
 # ======
 
+RUN apk add --no-cache py3-cryptography
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
     && pip install --no-cache-dir -r /tmp/requirements.txt
