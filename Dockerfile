@@ -12,22 +12,17 @@ RUN apk update \
 # oxPassport
 # ==========
 
-ENV NODE_MODULES_VERSION=version_4.1.0 \
-    GLUU_VERSION=4.1.0 \
-    GLUU_BUILD_DATE="2020-02-28 09:57"
+ENV GLUU_VERSION=4.1.1 \
+    GLUU_BUILD_DATE="2020-05-11 12:24"
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
     && tar -xf /tmp/passport.tgz --strip-components=1 -C /opt/gluu/node/passport \
     && rm /tmp/passport.tgz
 
-RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${NODE_MODULES_VERSION}-node_modules.tar.gz -O /tmp/node_modules.tar.gz \
-    && mkdir -p /opt/gluu/node/passport/node_modules \
-    && tar -xf /tmp/node_modules.tar.gz --strip-components=1 -C /opt/gluu/node/passport/node_modules \
-    && rm /tmp/node_modules.tar.gz
-
 RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && cd /opt/gluu/node/passport \
+    && npm install --save passport-oxd@latest \
     && npm install -P \
     && npm install @nicokaiser/passport-apple --save
 
@@ -123,8 +118,8 @@ EXPOSE 8090
 LABEL name="oxPassport" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.1.0" \
-    release="01" \
+    version="4.1.1" \
+    release="02" \
     summary="Gluu oxPassport" \
     description="Gluu interface to Passport.js to support social login and inbound identity"
 
