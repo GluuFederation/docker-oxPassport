@@ -15,7 +15,7 @@ RUN apk update \
 # ==========
 
 ARG GLUU_VERSION=4.2.0
-ARG GLUU_BUILD_DATE="2020-06-02 14:03"
+ARG GLUU_BUILD_DATE="2020-06-18 14:00"
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
