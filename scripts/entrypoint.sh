@@ -13,12 +13,7 @@ run_entrypoint() {
     fi
 }
 
-if [ -f /etc/redhat-release ]; then
-    source scl_source enable python27 && run_wait
-    source scl_source enable python27 && run_entrypoint
-    source scl_source enable rh-nodejs8 && node /opt/gluu/node/passport/server/app.js
-else
-    run_wait
-    run_entrypoint
-    node /opt/gluu/node/passport/server/app.js
-fi
+run_wait
+run_entrypoint
+
+exec node /opt/gluu/node/passport/server/app.js

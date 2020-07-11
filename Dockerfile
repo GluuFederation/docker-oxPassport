@@ -15,7 +15,7 @@ RUN apk update \
 # ==========
 
 ARG GLUU_VERSION=4.2.0
-ARG GLUU_BUILD_DATE="2020-06-18 14:00"
+ARG GLUU_BUILD_DATE="2020-07-10 19:14"
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -27,13 +27,6 @@ RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && npm install --save passport-oxd@latest \
     && npm install -P \
     && npm install @nicokaiser/passport-apple --save
-
-# # ====
-# # Tini
-# # ====
-
-# RUN wget -q --no-check-certificate https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
-#     && chmod +x /usr/bin/tini
 
 # ======
 # Python
@@ -57,15 +50,6 @@ RUN apk del build-deps \
 
 RUN mkdir -p /licenses
 COPY LICENSE /licenses/
-
-# ====
-# misc
-# ====
-
-RUN mkdir -p /app \
-    && mkdir -p /etc/certs \
-    && mkdir -p /etc/gluu/conf \
-    && mkdir -p /deploy
 
 # ==========
 # Config ENV
@@ -107,10 +91,12 @@ ENV GLUU_SECRET_ADAPTER=vault \
 # Generic ENV
 # ===========
 
-ENV NODE_LOGGING_DIR=/opt/gluu/node/passport/server/logs \
-    PASSPORT_LOG_LEVEL=info \
-    GLUU_WAIT_MAX_TIME=300 \
-    GLUU_WAIT_SLEEP_DURATION=10
+ENV GLUU_WAIT_MAX_TIME=300 \
+    GLUU_WAIT_SLEEP_DURATION=10 \
+    NODE_ENV=production \
+    NODE_CONFIG_DIR=/opt/gluu/node/passport/config \
+    NODE_LOGS=/opt/gluu/node/passport/logs \
+    PASSPORT_LOG_LEVEL=info
 
 EXPOSE 8090
 
@@ -126,10 +112,18 @@ LABEL name="oxPassport" \
     summary="Gluu oxPassport" \
     description="Gluu interface to Passport.js to support social login and inbound identity"
 
+RUN mkdir -p /app \
+    /etc/certs \
+    /etc/gluu/conf \
+    /deploy \
+    /opt/gluu/node/passport/logs \
+    /opt/gluu/node/passport/config
+
 # overrides
 COPY static/providers.js /opt/gluu/node/passport/server/
 COPY static/routes.js /opt/gluu/node/passport/server/
 COPY static/apple.js /opt/gluu/node/passport/server/mappings/
+
 COPY templates /app/templates
 COPY scripts /app/scripts/
 RUN chmod +x /app/scripts/entrypoint.sh
