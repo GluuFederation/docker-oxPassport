@@ -1,32 +1,8 @@
 import os
 import re
-# import shutil
 
 from pygluu.containerlib import get_manager
 from pygluu.containerlib.persistence import render_salt
-
-
-# def copy_static_templates():
-#     """Copies static templates (default) to /etc/gluu/conf directories.
-
-#     Prior to v3.1.5, `/etc/gluu/conf` is defined as VOLUME which cause issue
-#     in some of orchestrator (i.e. docker-compose) when switching image from
-#     older version to v3.1.5, as the volume is preserved and requires
-#     a full re-deploy of the container.
-
-#     This operation is safe because it checks for non-existing file first before
-#     copying the template, hence any mounted file will be left intact.
-#     """
-#     templates = [
-#         "passport-saml-config.json",
-#         "passport-inbound-idp-initiated.json",
-#     ]
-
-#     for template in templates:
-#         src = "/app/templates/{}".format(template)
-#         dst = "/etc/gluu/conf/{}".format(template)
-#         if not os.path.exists(dst):
-#             shutil.copyfile(src, dst)
 
 
 def render_passport_config(manager):

@@ -5,15 +5,17 @@ FROM node:10-alpine
 # ===============
 
 RUN apk update \
-    && apk add --no-cache py-pip \
-    && apk add --no-cache --virtual build-deps wget git
+    && apk add --no-cache py3-pip tini \
+    && apk add --no-cache --virtual build-deps wget git \
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && ln -sf /usr/bin/pip3 /usr/bin/pip
 
 # ==========
 # oxPassport
 # ==========
 
-ENV GLUU_VERSION=4.1.1 \
-    GLUU_BUILD_DATE="2020-05-11 12:24"
+ARG GLUU_VERSION=4.2.0
+ARG GLUU_BUILD_DATE="2020-07-13 19:52"
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -26,17 +28,11 @@ RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && npm install -P \
     && npm install @nicokaiser/passport-apple --save
 
-# ====
-# Tini
-# ====
-
-RUN wget -q --no-check-certificate https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
-    && chmod +x /usr/bin/tini
-
 # ======
 # Python
 # ======
 
+RUN apk add --no-cache py3-cryptography
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
     && pip install --no-cache-dir -r /tmp/requirements.txt
@@ -54,15 +50,6 @@ RUN apk del build-deps \
 
 RUN mkdir -p /licenses
 COPY LICENSE /licenses/
-
-# ====
-# misc
-# ====
-
-RUN mkdir -p /app \
-    && mkdir -p /etc/certs \
-    && mkdir -p /etc/gluu/conf \
-    && mkdir -p /deploy
 
 # ==========
 # Config ENV
@@ -104,10 +91,12 @@ ENV GLUU_SECRET_ADAPTER=vault \
 # Generic ENV
 # ===========
 
-ENV NODE_LOGGING_DIR=/opt/gluu/node/passport/server/logs \
-    PASSPORT_LOG_LEVEL=info \
-    GLUU_WAIT_MAX_TIME=300 \
-    GLUU_WAIT_SLEEP_DURATION=10
+ENV GLUU_WAIT_MAX_TIME=300 \
+    GLUU_WAIT_SLEEP_DURATION=10 \
+    NODE_ENV=production \
+    NODE_CONFIG_DIR=/opt/gluu/node/passport/config \
+    NODE_LOGS=/opt/gluu/node/passport/logs \
+    PASSPORT_LOG_LEVEL=info
 
 EXPOSE 8090
 
@@ -118,15 +107,23 @@ EXPOSE 8090
 LABEL name="oxPassport" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.1.1" \
-    release="02" \
+    version="4.2.0" \
+    release="01" \
     summary="Gluu oxPassport" \
     description="Gluu interface to Passport.js to support social login and inbound identity"
+
+RUN mkdir -p /app \
+    /etc/certs \
+    /etc/gluu/conf \
+    /deploy \
+    /opt/gluu/node/passport/logs \
+    /opt/gluu/node/passport/config
 
 # overrides
 COPY static/providers.js /opt/gluu/node/passport/server/
 COPY static/routes.js /opt/gluu/node/passport/server/
 COPY static/apple.js /opt/gluu/node/passport/server/mappings/
+
 COPY templates /app/templates
 COPY scripts /app/scripts/
 RUN chmod +x /app/scripts/entrypoint.sh
@@ -146,4 +143,4 @@ RUN chmod +x /app/scripts/entrypoint.sh
 # USER 1000
 
 ENTRYPOINT ["tini", "-g", "--"]
-CMD ["/app/scripts/entrypoint.sh"]
+CMD ["sh", "/app/scripts/entrypoint.sh"]
