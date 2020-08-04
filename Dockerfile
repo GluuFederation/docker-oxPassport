@@ -1,4 +1,4 @@
-FROM node:10-alpine
+FROM node:10-alpine3.11
 
 # ===============
 # Alpine packages
@@ -15,7 +15,7 @@ RUN apk update \
 # ==========
 
 ARG GLUU_VERSION=4.2.1
-ARG GLUU_BUILD_DATE="2020-07-20 15:34"
+ARG GLUU_BUILD_DATE="2020-07-28 15:24"
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -26,16 +26,18 @@ RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && cd /opt/gluu/node/passport \
     && npm install --save passport-oxd@latest \
     && npm install -P \
-    && npm install @nicokaiser/passport-apple --save
+    && npm install @nicokaiser/passport-apple --save \
+    && rm -rf $HOME/.npm
 
 # ======
 # Python
 # ======
 
 RUN apk add --no-cache py3-cryptography
-COPY requirements.txt /tmp/requirements.txt
+COPY requirements.txt /app/requirements.txt
 RUN pip install -U pip \
-    && pip install --no-cache-dir -r /tmp/requirements.txt
+    && pip install --no-cache-dir -r /app/requirements.txt \
+    && rm -rf /src/pygluu-containerlib/.git
 
 # =======
 # Cleanup
