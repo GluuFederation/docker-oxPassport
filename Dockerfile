@@ -24,9 +24,7 @@ RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${G
 
 RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && cd /opt/gluu/node/passport \
-    && npm install --save passport-oxd@latest \
     && npm install -P \
-    && npm install @nicokaiser/passport-apple --save \
     && rm -rf $HOME/.npm
 
 # ======
@@ -110,7 +108,7 @@ LABEL name="oxPassport" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
     version="4.2.1" \
-    release="02" \
+    release="03" \
     summary="Gluu oxPassport" \
     description="Gluu interface to Passport.js to support social login and inbound identity"
 
@@ -120,11 +118,6 @@ RUN mkdir -p /app \
     /deploy \
     /opt/gluu/node/passport/logs \
     /opt/gluu/node/passport/config
-
-# overrides
-COPY static/providers.js /opt/gluu/node/passport/server/
-COPY static/routes.js /opt/gluu/node/passport/server/
-COPY static/apple.js /opt/gluu/node/passport/server/mappings/
 
 COPY templates /app/templates
 COPY scripts /app/scripts/
