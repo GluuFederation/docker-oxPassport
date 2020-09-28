@@ -1,4 +1,4 @@
-FROM node:10-alpine
+FROM node:10-alpine3.11
 
 # ===============
 # Alpine packages
@@ -14,8 +14,8 @@ RUN apk update \
 # oxPassport
 # ==========
 
-ARG GLUU_VERSION=4.2.0
-ARG GLUU_BUILD_DATE="2020-07-13 19:52"
+ENV GLUU_VERSION=4.2.1
+ENV GLUU_BUILD_DATE="2020-09-25 20:37"
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -24,18 +24,18 @@ RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${G
 
 RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && cd /opt/gluu/node/passport \
-    && npm install --save passport-oxd@latest \
     && npm install -P \
-    && npm install @nicokaiser/passport-apple --save
+    && rm -rf $HOME/.npm
 
 # ======
 # Python
 # ======
 
 RUN apk add --no-cache py3-cryptography
-COPY requirements.txt /tmp/requirements.txt
+COPY requirements.txt /app/requirements.txt
 RUN pip install -U pip \
-    && pip install --no-cache-dir -r /tmp/requirements.txt
+    && pip install --no-cache-dir -r /app/requirements.txt \
+    && rm -rf /src/pygluu-containerlib/.git
 
 # =======
 # Cleanup
@@ -107,8 +107,8 @@ EXPOSE 8090
 LABEL name="oxPassport" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.2.0" \
-    release="01" \
+    version="4.2.1" \
+    release="03" \
     summary="Gluu oxPassport" \
     description="Gluu interface to Passport.js to support social login and inbound identity"
 
@@ -118,11 +118,6 @@ RUN mkdir -p /app \
     /deploy \
     /opt/gluu/node/passport/logs \
     /opt/gluu/node/passport/config
-
-# overrides
-COPY static/providers.js /opt/gluu/node/passport/server/
-COPY static/routes.js /opt/gluu/node/passport/server/
-COPY static/apple.js /opt/gluu/node/passport/server/mappings/
 
 COPY templates /app/templates
 COPY scripts /app/scripts/

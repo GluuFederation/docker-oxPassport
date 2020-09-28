@@ -26,8 +26,8 @@ def render_passport_config(manager):
         # changing log level
         data = re.sub(r'("logLevel": )"info"', r'\1"{}"'.format(log_level), data, flags=re.DOTALL | re.M)
 
-        with open('/etc/gluu/conf/passport-config.json', 'w') as file_:
-            file_.write(data)
+        with open('/etc/gluu/conf/passport-config.json', 'w') as file1_:
+            file1_.write(data)
 
 
 def main():
