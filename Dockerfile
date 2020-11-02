@@ -1,4 +1,4 @@
-FROM node:10-alpine3.11
+FROM node:12.19.0-alpine3.10
 
 # ===============
 # Alpine packages
