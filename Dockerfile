@@ -18,15 +18,22 @@ RUN apk update \
 ENV GLUU_VERSION=master
 ENV GLUU_BUILD_DATE="2020-10-31 17:40"
 
-RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
-    && mkdir -p /opt/gluu/node/passport \
-    && tar -xf /tmp/passport.tgz --strip-components=1 -C /opt/gluu/node/passport \
-    && rm /tmp/passport.tgz
-
-RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
+RUN git clone -n  https://github.com/GluuFederation/gluu-passport.git /opt/gluu/node/passport \
     && cd /opt/gluu/node/passport \
-    && npm install -P \
+    && git checkout 86931bc827815326db4e7b5154bf7c854a98c6d2 \
+    && ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
+    && npm install \
     && rm -rf $HOME/.npm
+
+#RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
+#    && mkdir -p /opt/gluu/node/passport \
+#    && tar -xf /tmp/passport.tgz --strip-components=1 -C /opt/gluu/node/passport \
+#    && rm /tmp/passport.tgz
+
+#RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
+#    && cd /opt/gluu/node/passport \
+#    && npm install -P \
+#    && rm -rf $HOME/.npm
 
 # ======
 # Python
