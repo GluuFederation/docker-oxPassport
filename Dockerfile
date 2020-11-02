@@ -14,8 +14,9 @@ RUN apk update \
 # oxPassport
 # ==========
 
-ENV GLUU_VERSION=4.2.2
-ENV GLUU_BUILD_DATE="2020-09-25 05:44"
+# TODO : Switch to 4.2.2
+ENV GLUU_VERSION=master
+ENV GLUU_BUILD_DATE="2020-10-31 17:40"
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
