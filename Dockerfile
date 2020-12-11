@@ -15,7 +15,7 @@ RUN apk update \
 # ==========
 
 ENV GLUU_VERSION=4.2.2
-ENV GLUU_BUILD_DATE="2020-11-25 18:45"
+ENV GLUU_BUILD_DATE="2020-12-11 14:11"
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -108,7 +108,7 @@ LABEL name="oxPassport" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
     version="4.2.2" \
-    release="dev" \
+    release="01" \
     summary="Gluu oxPassport" \
     description="Gluu interface to Passport.js to support social login and inbound identity"
 
