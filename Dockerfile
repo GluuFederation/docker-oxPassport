@@ -6,7 +6,7 @@ FROM node:12.19.0-alpine3.12
 
 RUN apk update \
     && apk add --no-cache py3-pip tini \
-    && apk add --no-cache --virtual build-deps wget git \
+    && apk add --no-cache --virtual build-deps wget git gcc musl-dev python3-dev libffi-dev openssl-dev \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && ln -sf /usr/bin/pip3 /usr/bin/pip
 
@@ -14,8 +14,8 @@ RUN apk update \
 # oxPassport
 # ==========
 
-ENV GLUU_VERSION=4.2.2
-ENV GLUU_BUILD_DATE="2020-12-22 12:36"
+ENV GLUU_VERSION=4.2.3
+ENV GLUU_BUILD_DATE="2021-02-02 12:53"
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -31,7 +31,6 @@ RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
 # Python
 # ======
 
-RUN apk add --no-cache py3-cryptography
 COPY requirements.txt /app/requirements.txt
 RUN pip install -U pip \
     && pip install --no-cache-dir -r /app/requirements.txt \
@@ -107,8 +106,8 @@ EXPOSE 8090
 LABEL name="oxPassport" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.2.2" \
-    release="02" \
+    version="4.2.3" \
+    release="01" \
     summary="Gluu oxPassport" \
     description="Gluu interface to Passport.js to support social login and inbound identity"
 
