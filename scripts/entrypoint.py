@@ -6,13 +6,15 @@ from pygluu.containerlib.persistence import render_salt
 
 
 def render_passport_config(manager):
+    hostname = manager.config.get("hostname")
     config = {
-        'hostname': manager.config.get("hostname"),
+        'hostname': hostname,
         'passport_rp_client_id': manager.config.get("passport_rp_client_id"),
         'passport_rp_client_cert_fn': manager.config.get("passport_rp_client_cert_fn"),
         'passport_rp_client_cert_alias': manager.config.get("passport_rp_client_cert_alias"),
         'passport_rp_client_cert_alg': manager.config.get("passport_rp_client_cert_alg"),
         "idpSigningCert": manager.secret.get("idp3SigningCertificateText"),
+        "failure_redirect_url": os.environ.get("GLUU_PASSPORT_FAILURE_REDIRECT_URL") or f"https://{hostname}/oxauth/auth/passport/passportlogin.htm",
     }
 
     # Automatically create passport-config.json from entries

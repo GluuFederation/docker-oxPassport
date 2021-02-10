@@ -95,7 +95,8 @@ ENV GLUU_WAIT_MAX_TIME=300 \
     NODE_ENV=production \
     NODE_CONFIG_DIR=/opt/gluu/node/passport/config \
     NODE_LOGS=/opt/gluu/node/passport/logs \
-    PASSPORT_LOG_LEVEL=info
+    PASSPORT_LOG_LEVEL=info \
+    GLUU_PASSPORT_FAILURE_REDIRECT_URL=""
 
 EXPOSE 8090
 
