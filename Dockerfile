@@ -1,12 +1,12 @@
-FROM alpine:3.13
+FROM node:12.19.0-alpine3.12
 
 # ===============
 # Alpine packages
 # ===============
 
 RUN apk update \
-    && apk add --no-cache py3-pip tini nodejs npm \
-    && apk add --no-cache --virtual build-deps wget git gcc musl-dev python3-dev libffi-dev openssl-dev cargo \
+    && apk add --no-cache py3-pip tini \
+    && apk add --no-cache --virtual build-deps wget git gcc musl-dev python3-dev libffi-dev openssl-dev \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && ln -sf /usr/bin/pip3 /usr/bin/pip
 
@@ -22,7 +22,7 @@ RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${G
     && tar -xf /tmp/passport.tgz --strip-components=1 -C /opt/gluu/node/passport \
     && rm /tmp/passport.tgz
 
-RUN ln -sf /usr/bin/node /usr/local/bin/nodejs \
+RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && cd /opt/gluu/node/passport \
     && npm install -P \
     && rm -rf $HOME/.npm
@@ -33,6 +33,7 @@ RUN ln -sf /usr/bin/node /usr/local/bin/nodejs \
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install -U pip \
+    && pip install --no-cache-dir 'cryptography<3.4' \
     && pip install --no-cache-dir -r /app/requirements.txt \
     && rm -rf /src/pygluu-containerlib/.git
 
