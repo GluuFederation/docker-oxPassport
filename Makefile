@@ -1,4 +1,4 @@
-GLUU_VERSION=4.2.3
+GLUU_VERSION=4.3.0
 IMAGE_NAME=gluufederation/oxpassport
 UNSTABLE_VERSION=dev
 

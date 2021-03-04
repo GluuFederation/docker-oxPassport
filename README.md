@@ -5,7 +5,7 @@ Docker image packaging for oxPassport.
 ## Versions
 
 See [Releases](https://github.com/GluuFederation/docker-oxPassport/releases) for stable versions.
-For bleeding-edge/unstable version, use `gluufederation/oxpassport:4.2.3_dev`.
+For bleeding-edge/unstable version, use `gluufederation/oxpassport:4.3.0_dev`.
 
 ## Environment Variables
 
