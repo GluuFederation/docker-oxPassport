@@ -14,8 +14,9 @@ RUN apk update \
 # oxPassport
 # ==========
 
-ENV GLUU_VERSION=4.3.0
-ENV GLUU_BUILD_DATE="2021-02-05 14:36"
+ENV GLUU_VERSION=4.3.0_1
+ENV GLUU_BUILD_DATE="2021-03-31 19:25"
+ENV NODE_ENV=production
 
 RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${GLUU_VERSION}.tgz -O /tmp/passport.tgz \
     && mkdir -p /opt/gluu/node/passport \
@@ -24,7 +25,7 @@ RUN wget -q --no-check-certificate https://ox.gluu.org/npm/passport/passport-${G
 
 RUN ln -sf /usr/local/bin/node /usr/local/bin/nodejs \
     && cd /opt/gluu/node/passport \
-    && npm install -P \
+    && npm install \
     && rm -rf $HOME/.npm
 
 # ======
@@ -93,7 +94,6 @@ ENV GLUU_SECRET_ADAPTER=vault \
 
 ENV GLUU_WAIT_MAX_TIME=300 \
     GLUU_WAIT_SLEEP_DURATION=10 \
-    NODE_ENV=production \
     NODE_CONFIG_DIR=/opt/gluu/node/passport/config \
     NODE_LOGS=/opt/gluu/node/passport/logs \
     PASSPORT_LOG_LEVEL=info \
